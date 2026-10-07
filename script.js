@@ -231,6 +231,66 @@ function makeCompare(renderSrc, wireSrc, title) {
   return box;
 }
 
+// [프로젝트 소개 글] README 내용을 크게 보기 창에 보여줌 (제목이 같은 카드에 자동으로 붙음)
+// summary=한 줄 소개 / features=핵심 기능 / solved=[문제, 해결] 목록
+const PROJECT_INFO = {
+  'Industrial Camera Inspection': {
+    summary: 'Hikrobot 산업용 카메라로 컨베이어 위 뚜껑의 색(화이트·파랑·빨강)과 숫자(1·2·3)를 실시간으로 인식해 양품/불량을 판정하고 카운트합니다. 결과는 UDP로 Unity 디지털트윈에 전송돼요.',
+    features: ['배경 학습(MOG2)으로 벨트 무늬를 걸러내고 뚜껑 위치 검출', 'HSV 색 판정 + CNN(PyTorch → ONNX) 숫자 인식, 검증 정확도 99.3%', '같은 결과가 3프레임 연속 나오면 카운트 확정, 검사 로그 CSV 저장', '벨트 이동 중 인식, 4cm 간격으로 연달아 올려도 카운트 누락 없음', '배경 학습 저장/불러오기로 시작 시간 약 200초 → 몇 초'],
+    solved: [['벨트 반사광이 뚜껑으로 오인됨', '배경 학습 + 원형도 필터 + 레일 반사를 물리적으로 차폐'], ['글리터 뚜껑만 숫자 오인식', '색 거리 계산 전에 블러, 학습·추론 전처리를 똑같이 맞춰 재학습'], ['연달아 올리면 카운트 누락', '위치가 뒤로 점프하면 새 뚜껑으로 보고 잠금 해제']],
+  },
+  'Camera Digital Twin': {
+    summary: '카메라 프로그램의 판정 결과를 UDP로 받아 Unity 벨트 위에 같은 색·숫자의 뚜껑을 실시간으로 재현하는 디지털트윈입니다. 벨트·카메라·링라이트·뚜껑은 Maya로 직접 모델링했어요.',
+    features: ['UDP 수신 → 같은 뚜껑을 복제해 벨트 위로 이동, 끝에서 낙하', '글래스 대시보드: 총 검사·양품/불량·색상별·숫자별 통계', '판정 순간 화면 테두리 빛 (양품 초록 / 불량 빨강)', 'SO-101 로봇팔 URDF 가져오기 + 관절 테스트 (진행 중)'],
+    solved: [['수신 스레드에서 Unity 오브젝트를 만지면 에러', '수신은 별도 스레드, 처리는 큐에 넣어 Update에서'], ['벨트 위 물리 이동이 매번 달라짐', '벨트 위는 위치를 직접 옮기고 낙하에만 물리 사용'], ['로봇팔 URDF 가져오면 메시가 끊김', '충돌 블록만 뺀 visual 전용 URDF로 우회']],
+  },
+  'Dopamine': {
+    summary: '일기·사진·음성·영상을 입력하면 AI가 가사, 음악, 앨범 커버를 만들어주는 감정 기록 서비스입니다. 생성형 AI ICT 공모전 출품작이고, 2인 팀에서 AI 파이프라인과 백엔드를 맡았어요.',
+    features: ['장르·악기·길이를 고르면 길이를 반영해 가사 생성 (Gemini)', '완성곡 2개(Ver.1 / Ver.2)를 만들어 마음에 드는 쪽 선택 (ACE-Step)', '앨범 커버: 기본 그라데이션 + AI 커버 생성 (SDXL-Turbo, 스타일 5종)', '앨범 커버 위에 가사 오버레이'],
+    solved: [['노래+커버를 같이 생성하면 타임아웃', 'SDXL을 별도 프로세스로 분리, 끝나면 종료해 GPU 메모리 반환'], ['미리듣기와 풀버전 멜로디가 다름', '처음부터 풀버전 2곡을 생성하는 방식으로 변경'], ['인트로가 30초씩 늘어짐', '옵션 선택 → 가사 생성 순서로 바꿔 노래 길이를 가사에 반영']],
+  },
+  'Memorium': {
+    summary: '치매 어르신의 기억을 돕는 라즈베리파이 기반 AI 스마트 액자입니다. 임베디드 소프트웨어 경진대회 자유공모 부문에 1인으로 출품했어요. "틀림을 드러내지 않는 UI"가 설계 원칙이에요.',
+    features: ['사진·영상 슬라이드쇼 + 음성 안내, 복약 알림', '표정 분석(DeepFace)으로 기억 인지 반응 확인', '가족이 사진·설정을 관리하는 웹 설정 페이지', '오답·반복 상황에서도 빨간색·X·경고음 없이 공감 먼저 반응'],
+    solved: [['Hailo 모듈이 인식되지 않음', 'M.2 HAT+는 PCIe 수동 활성화 필요 → config.txt에 dtparam=pciex1'], ['학교 네트워크에서 SSH/SCP 불가', '모니터 직결로 작업하고 데이터는 클라우드를 거쳐 이전'], ['라즈베리파이에서 실시간 프레임 저하', '개선 전/후 동작은 위 영상에서 확인']],
+  },
+};
+
+// 소개 글 패널 만들기
+function makeInfoPanel(info) {
+  const box = document.createElement('section');
+  box.className = 'work-info';
+  const solved = info.solved.map(([problem, fix]) => `<li><b>${problem}</b><span>${fix}</span></li>`).join('');
+  box.innerHTML = `
+    <div class="info-main"><h4>Overview</h4><p>${info.summary}</p>
+      <h4>Key Features</h4><ul>${info.features.map(f => `<li>${f}</li>`).join('')}</ul></div>
+    <div class="info-solved"><h4>Problem Solving</h4><ul>${solved}</ul></div>`;
+  return box;
+}
+
+// 유튜브 주소에서 영상 id와 세로 영상(shorts) 여부 뽑기
+function parseYouTube(url) {
+  const u = new URL(url);
+  const parts = u.pathname.split('/').filter(Boolean);
+  const short = parts[0] === 'shorts';
+  const id = u.hostname.includes('youtu.be') ? parts[0]
+    : (short || parts[0] === 'embed' ? parts[1] : u.searchParams.get('v'));
+  return { id, short };
+}
+
+// 그림 하나 + 설명 한 줄을 묶는 상자
+function makeFigure(media, caption, extraClass = '') {
+  const fig = document.createElement('figure');
+  fig.className = ('work-fig ' + extraClass).trim();
+  fig.append(media);
+  if (caption) {
+    const cap = document.createElement('figcaption');
+    cap.className = 'work-note'; cap.textContent = caption;
+    fig.append(cap);
+  }
+  return fig;
+}
+
 document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D 작업 타일 + 프로젝트 카드 둘 다 같은 크게 보기 창 사용
   const { title, render, wire, extra, thumb, video, videoCaptions, pdf, note } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
@@ -239,75 +299,72 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
   tile.addEventListener('click', event => {
     if (event.target.closest('a')) return;      // 카드 안의 GitHub 링크는 그대로 이동
     workMedia.replaceChildren();
-    // 유튜브 영상이 있으면 맨 위에 (16:9 크기). 여러 영상은 쉼표로 구분.
-    const videos = (video || '').split(',').map(url => url.trim()).filter(Boolean);
-    videos.forEach((url, index) => {
-      const videoUrl = new URL(url);
-      const pathParts = videoUrl.pathname.split('/').filter(Boolean);
-      const videoId = videoUrl.hostname.includes('youtu.be')
-        ? pathParts[0]
-        : (pathParts[0] === 'shorts' || pathParts[0] === 'embed'
-          ? pathParts[1]
-          : videoUrl.searchParams.get('v'));
-      const frame = document.createElement('iframe');
-      frame.className = 'work-video';
-      frame.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
-      frame.title = `${title} 영상 ${index + 1}`;
-      frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
-      frame.allowFullscreen = true;
-      workMedia.append(frame);
-      const caption = (videoCaptions || '').split(',')[index]?.trim();
-      if (caption) {
-        const p = document.createElement('p');
-        p.className = 'work-note'; p.textContent = caption;
-        workMedia.append(p);
-      }
-    });
-    if (pdf) {
-      const link = document.createElement('a');
-      link.className = 'work-pdf-link';
-      link.href = pdf;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.textContent = '발표 자료 PDF 새 창에서 보기 ↗';
-      workMedia.append(link);
 
-      const frame = document.createElement('iframe');
-      frame.className = 'work-pdf';
-      frame.src = pdf;
-      frame.title = `${title} 발표 자료`;
-      workMedia.append(frame);
+    // ① 영상: 가로로 나란히 (여러 개면 한 줄에 같이, 세로 영상은 세로 비율 그대로)
+    const videos = (video || '').split(',').map(url => url.trim()).filter(Boolean);
+    if (videos.length) {
+      const row = document.createElement('div');
+      row.className = 'work-videos';
+      videos.forEach((url, index) => {
+        const { id, short } = parseYouTube(url);
+        const frame = document.createElement('iframe');
+        frame.className = 'work-video' + (short ? ' is-short' : '');
+        frame.src = `https://www.youtube.com/embed/${id}?rel=0`;
+        frame.title = `${title} 영상 ${index + 1}`;
+        frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+        frame.allowFullscreen = true;
+        row.append(makeFigure(frame, (videoCaptions || '').split(',')[index]?.trim(), short ? 'is-short' : 'is-wide'));
+      });
+      workMedia.append(row);
     }
-    if (!render && !video) {
-      // 아직 이미지를 안 넣은 타일
+
+    // ② 프로젝트 소개 글 (README 내용)
+    if (PROJECT_INFO[title]) workMedia.append(makeInfoPanel(PROJECT_INFO[title]));
+
+    // ③ 대표 이미지
+    if (render) {
+      const hero = wire ? makeCompare(render, wire, title) : makeMedia(render, title);
+      workMedia.append(makeFigure(hero, note, 'work-hero'));
+    } else if (!videos.length && !pdf) {
       const empty = document.createElement('p');
       empty.className = 'work-empty'; empty.textContent = '이미지를 준비 중입니다.';
       workMedia.append(empty);
-    } else if (!render) {
-      // 영상만 있는 경우
-    } else if (wire) {
-      workMedia.append(makeCompare(render, wire, title));
-    } else {
-      workMedia.append(makeMedia(render, title));
     }
-    // 첫 이미지 설명 (예: 배경은 AI로 생성)
-    if (note) {
-      const p = document.createElement('p');
-      p.className = 'work-note'; p.textContent = note;
-      workMedia.append(p);
+
+    // ④ 추가 이미지: 2열 갤러리 (비교 슬라이더는 가로 전체, 이미지를 누르면 크게)
+    const items = (extra || '').split(',').filter(Boolean);
+    if (items.length) {
+      const gallery = document.createElement('div');
+      gallery.className = 'work-gallery';
+      items.forEach(item => {
+        const [body, caption] = item.trim().split('::');   // "파일::설명"으로 적으면 이미지 아래에 설명
+        const [r, w] = body.split('|');                    // "렌더|와이어"로 적으면 비교 슬라이더
+        if (w) { gallery.append(makeFigure(makeCompare(r, w, title), caption, 'wide')); return; }
+        const fig = makeFigure(makeMedia(r, title), caption);
+        fig.addEventListener('click', () => fig.classList.toggle('expanded'));
+        gallery.append(fig);
+      });
+      workMedia.append(gallery);
     }
-    // 추가 이미지는 아래에 차례로
-    (extra || '').split(',').filter(Boolean).forEach(item => {
-      const [body, caption] = item.trim().split('::');   // "파일::설명"으로 적으면 이미지 아래에 설명
-      const [r, w] = body.split('|');                    // "렌더|와이어"로 적으면 비교 슬라이더
-      workMedia.append(w ? makeCompare(r, w, title) : makeMedia(r, title));
-      if (caption) {
-        const p = document.createElement('p');
-        p.className = 'work-note'; p.textContent = caption;
-        workMedia.append(p);
-      }
-    });
+
+    // ⑤ PDF 자료
+    if (pdf) {
+      const label = /report/i.test(pdf) ? '최종 보고서' : '발표 자료';
+      const box = document.createElement('section');
+      box.className = 'work-pdf-box';
+      const link = document.createElement('a');
+      link.className = 'work-pdf-link';
+      link.href = pdf; link.target = '_blank'; link.rel = 'noopener';
+      link.textContent = `${label} PDF 새 창에서 보기 ↗`;
+      const frame = document.createElement('iframe');
+      frame.className = 'work-pdf';
+      frame.src = pdf; frame.title = `${title} ${label}`;
+      box.append(link, frame);
+      workMedia.append(box);
+    }
+
     workCaption.textContent = title;
+    workViewer.scrollTop = 0;
     workViewer.showModal();
   });
 });
