@@ -198,7 +198,8 @@ a.preview-badge{color:#a8bad5}
 @media(min-width:761px){.orbiting .float-chip{font-size:11px;padding:9px 14px}}
 /* ── 10/7 수정10: 유튜브 영상 / 3D Works 툴 목록 ── */
 .work-video{display:block;width:min(1000px,88vw);aspect-ratio:16/9;border:0;background:#000}
-.work-pdf{display:block;width:min(1000px,88vw);height:min(78vh,900px);border:1px solid rgba(196,215,248,.18);background:#fff}
+.work-pdf{display:block;width:min(1000px,88vw);height:min(78vh,900px);border:1px solid rgba(196,215,248,.18);background:#fff}.work-pdf-link{align-self:flex-start;margin:8px 6vw 0;padding:9px 14px;border:1px solid rgba(196,215,248,.24);border-radius:6px;color:#dce6f5;background:rgba(150,180,230,.1);font-size:13px;text-decoration:none}
+.work-pdf-link:hover{background:rgba(150,180,230,.2)}
 .works .section-title>p{line-height:1.7}
 .work-note{margin:0 0 6px;font-size:12px;color:#8d9bb5;text-align:center}
 /* ── 10/7 수정11: AI 배경 표시 ── */

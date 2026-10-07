@@ -264,12 +264,21 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
       }
     });
     if (pdf) {
+      const link = document.createElement('a');
+      link.className = 'work-pdf-link';
+      link.href = pdf;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = '발표 자료 PDF 새 창에서 보기 ↗';
+      workMedia.append(link);
+
       const frame = document.createElement('iframe');
       frame.className = 'work-pdf';
       frame.src = pdf;
       frame.title = `${title} 발표 자료`;
       workMedia.append(frame);
-    }    if (!render && !video) {
+    }
+    if (!render && !video) {
       // 아직 이미지를 안 넣은 타일
       const empty = document.createElement('p');
       empty.className = 'work-empty'; empty.textContent = '이미지를 준비 중입니다.';
