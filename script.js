@@ -210,7 +210,10 @@ document.querySelectorAll('.work-tile').forEach(tile => {
       workMedia.append(makeImage(render, title));
     }
     // 추가 이미지는 아래에 차례로
-    (extra || '').split(',').filter(Boolean).forEach(src => workMedia.append(makeImage(src.trim(), title)));
+    (extra || '').split(',').filter(Boolean).forEach(item => {
+      const [r, w] = item.trim().split('|');   // "렌더|와이어"로 적으면 비교 슬라이더
+      workMedia.append(w ? makeCompare(r, w, title) : makeImage(r, title));
+    });
     workCaption.textContent = title;
     workViewer.showModal();
   });
@@ -220,3 +223,17 @@ document.querySelectorAll('.work-tile').forEach(tile => {
 workViewer?.querySelector('.work-close').addEventListener('click', () => workViewer.close());
 workViewer?.addEventListener('click', event => { if (event.target === workViewer) workViewer.close(); });
 workViewer?.addEventListener('close', () => workMedia.replaceChildren());
+
+// ── [히어로 와이어프레임] 마우스 위치에 따라 살짝 기울이기 ──
+const wireStage = document.querySelector('.wire-stage');
+const wireHero = document.querySelector('.wire-hero');
+const wireCanTilt = matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (wireStage && wireHero && wireCanTilt) {
+  wireStage.addEventListener('pointermove', event => {
+    const box = wireStage.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width - 0.5;   // -0.5 ~ 0.5
+    const y = (event.clientY - box.top) / box.height - 0.5;
+    wireHero.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 8}deg)`;
+  });
+  wireStage.addEventListener('pointerleave', () => { wireHero.style.transform = ''; });
+}

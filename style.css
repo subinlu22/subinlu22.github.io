@@ -154,3 +154,28 @@
 .work-media>img{width:auto;max-width:100%;max-height:80vh}
 /* ── 10/7 수정6: 타일 썸네일도 잘라내지 않고 원본 구도 그대로 ── */
 .work-thumb>img{object-fit:contain;background:#0b1020}
+/* ── 10/7 수정7: 히어로 자동차 와이어프레임 + 선을 따라 흐르는 빛 ── */
+/* 원리: 파란 와이어(바탕) 위에 흰 와이어를 겹치고, 흰 와이어는 움직이는 띠 모양으로만 보이게 가림 → 빛이 선을 타고 지나가는 것처럼 보임 */
+.wire-hero{position:relative;z-index:1;width:min(640px,118%);aspect-ratio:1500/989;transition:transform .25s ease-out;filter:drop-shadow(0 0 10px rgba(105,195,237,.3))}
+.wire-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.wire-base{opacity:.55}
+.wire-glow{-webkit-mask-image:linear-gradient(100deg,transparent 42%,rgba(0,0,0,.4) 47%,#000 50%,rgba(0,0,0,.4) 53%,transparent 58%);mask-image:linear-gradient(100deg,transparent 42%,rgba(0,0,0,.4) 47%,#000 50%,rgba(0,0,0,.4) 53%,transparent 58%);-webkit-mask-size:260% 100%;mask-size:260% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;animation:wireSweep 5s linear infinite}
+.wire-glow-2{-webkit-mask-image:linear-gradient(70deg,transparent 46%,#000 50%,transparent 54%);mask-image:linear-gradient(70deg,transparent 46%,#000 50%,transparent 54%);-webkit-mask-size:300% 100%;mask-size:300% 100%;animation-duration:8s;animation-delay:-3s;opacity:.6}
+@keyframes wireSweep{from{-webkit-mask-position:130% 0;mask-position:130% 0}to{-webkit-mask-position:-30% 0;mask-position:-30% 0}}
+.wire-stage .float-chip{z-index:2}
+@media(max-width:760px){.wire-hero{width:115%}}
+@media(prefers-reduced-motion:reduce){.wire-glow{animation:none;opacity:0}}
+@media(min-width:761px){
+  .wire-stage .chip-cpp{left:2%;top:6%}
+  .wire-stage .chip-3d{right:0;top:12%}
+  .wire-stage .chip-sensor{left:4%;top:auto;bottom:4%}
+  .wire-stage .stage-caption{bottom:0}
+}
+@media(min-width:761px){.wire-stage .chip-sensor{left:-2%;bottom:-2%}}
+@media(max-width:760px){
+  .hero-stage.wire-stage{left:0;right:0;width:100%;opacity:.9}
+  .wire-stage .wire-hero{width:100%}
+  .wire-stage .chip-cpp{left:0;top:8%}
+  .wire-stage .chip-3d{right:0;top:12%}
+  .wire-stage .chip-sensor{left:0;top:auto;bottom:6%}
+}
