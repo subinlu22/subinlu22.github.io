@@ -232,17 +232,29 @@ function makeCompare(renderSrc, wireSrc, title) {
 }
 
 document.querySelectorAll('.work-tile').forEach(tile => {
-  const { title, render, wire, extra, thumb } = tile.dataset;
+  const { title, render, wire, extra, thumb, video } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
   if (thumb) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
 
   tile.addEventListener('click', () => {
     workMedia.replaceChildren();
-    if (!render) {
+    // 유튜브 영상이 있으면 맨 위에 (16:9 크기)
+    if (video) {
+      const frame = document.createElement('iframe');
+      frame.className = 'work-video';
+      frame.src = video + '?rel=0';
+      frame.title = title + ' 영상';
+      frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+      frame.allowFullscreen = true;
+      workMedia.append(frame);
+    }
+    if (!render && !video) {
       // 아직 이미지를 안 넣은 타일
       const empty = document.createElement('p');
       empty.className = 'work-empty'; empty.textContent = '이미지를 준비 중입니다.';
       workMedia.append(empty);
+    } else if (!render) {
+      // 영상만 있는 경우
     } else if (wire) {
       workMedia.append(makeCompare(render, wire, title));
     } else {
@@ -278,48 +290,44 @@ if (wireStage && wireHero && wireCanTilt) {
 }
 
 
-// ── [히어로 빛 입자] 도화선 불꽃처럼 작은 빛이 와이어 선을 따라 기어감 ──
-// WIRE_MAP: 와이어 선이 있는 칸은 1, 없는 칸은 0인 지도 (car_wire_map.js)
+// ── [히어로 빛 입자] 별똥별처럼 작은 빛이 와이어의 '직선 구간'만 따라 천천히 지나감 ──
+// WIRE_SEGMENTS: 와이어에서 미리 뽑아둔 직선 목록 (car_wire_map.js)
 (() => {
-  const map = window.WIRE_MAP;
+  const data = window.WIRE_SEGMENTS;
   const cvs = document.querySelector('.wire-sparks');
-  if (!map || !cvs || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!data || !cvs || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ctx = cvs.getContext('2d');
-  const W = map.w, H = map.h;
+  const MAX_SPARKS = 4;                    // 동시에 지나가는 빛 개수 (적게)
+  const TAIL = 110;                        // 꼬리 길이 (이미지 픽셀 기준)
 
-  // base64 글자 → 칸마다 0/1
-  const raw = atob(map.bits);
-  const grid = new Uint8Array(W * H);
-  for (let i = 0; i < W * H; i += 1) grid[i] = (raw.charCodeAt(i >> 3) >> (7 - (i & 7))) & 1;
-  const onLine = (x, y) => x >= 0 && y >= 0 && x < W && y < H && grid[y * W + x] === 1;
-  const starts = [];                       // 불꽃이 새로 태어날 수 있는 선 위 칸들
-  for (let i = 0; i < W * H; i += 4) if (grid[i]) starts.push(i);
-
-  const DIRS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];   // 8방향
-  const SPARK_COUNT = 14;                  // 적게, 은은하게
-  const sparks = [];
-  const respawn = s => {
-    const i = starts[(Math.random() * starts.length) | 0];
-    s.x = i % W; s.y = (i / W) | 0;
-    s.dir = (Math.random() * 8) | 0;
-    s.speed = 0.12 + Math.random() * 0.16;  // 한 프레임에 움직이는 칸 수 (느리게)
-    s.life = 420 + Math.random() * 480;     // 몇 프레임 동안 빛나는지 (약 7~15초)
-    s.age = 0; s.carry = 0; s.phase = Math.random() * Math.PI * 2; s.trail = [];
-    return s;
+  // 빛 하나 새로 만들기: 직선 하나를 골라 한쪽 끝에서 반대쪽 끝으로
+  const makeSpark = delay => {
+    const [x1, y1, x2, y2] = data.lines[(Math.random() * data.lines.length) | 0];
+    const flip = Math.random() < 0.5;
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    return {
+      ax: flip ? x2 : x1, ay: flip ? y2 : y1, bx: flip ? x1 : x2, by: flip ? y1 : y2,
+      len, dist: -delay,                   // dist가 음수인 동안은 대기
+      speed: 0.35 + Math.random() * 0.3,   // 프레임당 이동 픽셀 (아주 느리게)
+      phase: Math.random() * Math.PI * 2,
+    };
   };
-  for (let i = 0; i < SPARK_COUNT; i += 1) sparks.push(respawn({}));
-
-  // 한 칸 전진: 지금 방향 기준 정면/좌우 45도 중 선이 이어지는 칸으로
-  const advance = s => {
-    const choices = [0, 1, -1].map(k => (s.dir + k + 8) % 8).filter(d => onLine(s.x + DIRS[d][0], s.y + DIRS[d][1]));
-    if (!choices.length) return false;     // 선이 끊기면 그 불꽃은 끝
-    s.dir = choices.includes(s.dir) && Math.random() < 0.8 ? s.dir : choices[(Math.random() * choices.length) | 0];
-    s.x += DIRS[s.dir][0]; s.y += DIRS[s.dir][1];
-    return true;
-  };
+  const sparks = Array.from({ length: MAX_SPARKS }, (_, i) => makeSpark(i * 140 + Math.random() * 120));
 
   let scale = 1, ratioPx = 1;
-  // 중심에서 바깥으로 갈수록 가늘고 투명해지는 빛줄기 하나
+  const resize = () => {
+    const ratio = Math.min(devicePixelRatio || 1, 2);
+    const box = cvs.getBoundingClientRect();
+    cvs.width = Math.round(box.width * ratio); cvs.height = Math.round(box.height * ratio);
+    scale = cvs.width / data.w; ratioPx = ratio;
+  };
+  resize();
+  addEventListener('resize', resize);
+
+  let visible = true;                       // 화면 밖이면 멈춤
+  new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(cvs);
+
+  // 중심에서 바깥으로 가늘어지는 빛줄기 하나 (다이아몬드 반짝임용)
   const drawRay = (x, y, len, ang, alpha) => {
     const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len;
     const g = ctx.createLinearGradient(x, y, ex, ey);
@@ -329,53 +337,42 @@ if (wireStage && wireHero && wireCanTilt) {
     ctx.strokeStyle = g; ctx.lineWidth = 0.7 * ratioPx;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
   };
-  const resize = () => {
-    const ratio = Math.min(devicePixelRatio || 1, 2);
-    const box = cvs.getBoundingClientRect();
-    cvs.width = Math.round(box.width * ratio); cvs.height = Math.round(box.height * ratio);
-    scale = cvs.width / W;                 // 지도 1칸 = 캔버스 몇 픽셀
-    ratioPx = ratio;
-  };
-  resize();
-  addEventListener('resize', resize);
 
-  let visible = true;                       // 화면 밖이면 멈춰서 배터리 아끼기
-  new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(cvs);
-
+  let tick = 0;
   const frame = () => {
     requestAnimationFrame(frame);
     if (!visible) return;
-    // 이전 그림을 조금씩 지워서 꼬리가 남았다 사라지게
+    tick += 1;
     ctx.clearRect(0, 0, cvs.width, cvs.height);
-    ctx.globalCompositeOperation = 'lighter';
-    for (const s of sparks) {
-      const px = s.x, py = s.y;
-      s.carry += s.speed;
-      let alive = true;
-      while (s.carry >= 1 && alive) { alive = advance(s); s.carry -= 1; }
-      s.age += 1;
-      const fade = Math.sin(Math.min(s.age / s.life, 1) * Math.PI);   // 서서히 밝아졌다 꺼짐
-      const cx = (s.x + 0.5) * scale, cy = (s.y + 0.5) * scale;
-      // 꼬리: 지나온 자리를 이어서 아주 얇고 희미하게 (뒤로 갈수록 투명)
-      if (px !== s.x || py !== s.y) { s.trail.push([cx, cy]); if (s.trail.length > 70) s.trail.shift(); }
-      ctx.lineCap = 'round';
-      for (let t = 1; t < s.trail.length; t += 1) {
-        const k = t / s.trail.length;                          // 0=꼬리 끝, 1=머리
-        ctx.strokeStyle = `rgba(200,235,255,${0.75 * fade * k * k})`;
-        ctx.lineWidth = (0.25 + 1.0 * k) * ratioPx;
-        ctx.beginPath(); ctx.moveTo(s.trail[t - 1][0], s.trail[t - 1][1]); ctx.lineTo(s.trail[t][0], s.trail[t][1]); ctx.stroke();
-      }
-      // 머리: 뾰족한 다이아몬드 반짝임 (가늘어지는 십자 + 짧은 대각선)
-      const twinkle = 0.65 + 0.35 * Math.sin(s.age * 0.05 + s.phase);  // 천천히 반짝반짝
+    ctx.lineCap = 'round';
+    sparks.forEach((s, i) => {
+      s.dist += s.speed;
+      if (s.dist < 0) return;                                   // 아직 대기 중
+      if (s.dist > s.len + TAIL) { sparks[i] = makeSpark(60 + Math.random() * 240); return; }
+      const ux = (s.bx - s.ax) / s.len, uy = (s.by - s.ay) / s.len;   // 진행 방향
+      const head = Math.min(s.dist, s.len);
+      const tail = Math.max(0, s.dist - TAIL);
+      const hx = (s.ax + ux * head) * scale, hy = (s.ay + uy * head) * scale;
+      const tx = (s.ax + ux * tail) * scale, ty = (s.ay + uy * tail) * scale;
+      // 선 시작/끝에서 부드럽게 나타나고 사라지기
+      const fade = Math.min(1, s.dist / 40, (s.len + TAIL - s.dist) / 60);
+      // 꼬리: 머리 쪽은 밝고 굵게, 끝으로 갈수록 가늘고 투명하게 (별똥별)
+      const g = ctx.createLinearGradient(tx, ty, hx, hy);
+      g.addColorStop(0, 'rgba(150,210,255,0)');
+      g.addColorStop(0.7, `rgba(190,232,255,${0.35 * fade})`);
+      g.addColorStop(1, `rgba(255,255,255,${0.85 * fade})`);
+      ctx.strokeStyle = g; ctx.lineWidth = 1.1 * ratioPx;
+      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
+      if (s.dist > s.len) return;                               // 머리가 끝에 닿으면 꼬리만 사라지게
+      // 머리: 뾰족한 다이아몬드 반짝임
+      const twinkle = 0.7 + 0.3 * Math.sin(tick * 0.06 + s.phase);
       const a = fade * twinkle;
       const long = (5 + 2 * twinkle) * ratioPx, short = long * 0.45;
-      drawRay(cx, cy, long, 0, a); drawRay(cx, cy, long, Math.PI / 2, a);
-      drawRay(cx, cy, long, Math.PI, a); drawRay(cx, cy, long, -Math.PI / 2, a);
-      [1, 3, 5, 7].forEach(k => drawRay(cx, cy, short, k * Math.PI / 4, a * 0.5));
-      ctx.fillStyle = `rgba(255,255,255,${a})`;                       // 아주 작은 중심점
-      ctx.beginPath(); ctx.arc(cx, cy, 0.7 * ratioPx, 0, Math.PI * 2); ctx.fill();
-      if (!alive || s.age > s.life) respawn(s);
-    }
+      [0, Math.PI / 2, Math.PI, -Math.PI / 2].forEach(ang => drawRay(hx, hy, long, ang, a));
+      [1, 3, 5, 7].forEach(k => drawRay(hx, hy, short, k * Math.PI / 4, a * 0.5));
+      ctx.fillStyle = `rgba(255,255,255,${a})`;
+      ctx.beginPath(); ctx.arc(hx, hy, 0.7 * ratioPx, 0, Math.PI * 2); ctx.fill();
+    });
   };
   frame();
 })();

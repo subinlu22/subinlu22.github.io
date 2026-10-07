@@ -196,3 +196,6 @@ a.preview-badge{color:#a8bad5}
 .contact-content .contact-links{margin-top:20px;gap:12px}
 .contact-content .contact-mail{font-size:clamp(14px,1.5vw,18px);font-weight:500;padding-bottom:8px}
 @media(min-width:761px){.orbiting .float-chip{font-size:11px;padding:9px 14px}}
+/* ── 10/7 수정10: 유튜브 영상 / 3D Works 툴 목록 ── */
+.work-video{display:block;width:min(1000px,88vw);aspect-ratio:16/9;border:0;background:#000}
+.works .section-title>p{line-height:1.7}
