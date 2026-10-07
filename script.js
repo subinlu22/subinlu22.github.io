@@ -2,19 +2,48 @@ const calendar = document.querySelector('#contributionGrid');
 const yearSelect = document.querySelector('#contributionYear');
 const contributionTotal = document.querySelector('#contributionTotal');
 
-function drawCalendar(year) {
+// [커밋 달력] GitHub 공개 기여 기록을 받아와서 칸마다 색으로 표시
+const GITHUB_USER = 'subinlu22';
+const contributionLabel = document.querySelector('#contributionLabel');
+const contributionNote = document.querySelector('#contributionNote');
+
+async function drawCalendar(year) {
   if (!calendar) return;
   calendar.replaceChildren();
-  contributionTotal.textContent = 'PREVIEW';
-  for (let week = 0; week < 52; week += 1) {
-    for (let day = 0; day < 7; day += 1) {
-      const value = Math.abs(Math.sin((week + 3) * 12.9898 + (day + 1) * 78.233 + Number(year) * 0.917) * 43758.5453) % 1;
-      const level = value < .31 ? 0 : value < .49 ? 1 : value < .69 ? 2 : value < .88 ? 3 : 4;
+  contributionTotal.textContent = '…';
+  try {
+    // 공개 기여 기록을 JSON으로 돌려주는 무료 API (GitHub 프로필 잔디와 같은 데이터)
+    const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}?y=${year}`);
+    if (!res.ok) throw new Error('응답 실패');
+    const data = await res.json();
+    const days = data.contributions || [];
+    // 1월 1일이 무슨 요일인지에 맞춰 앞을 빈칸으로 채움 (일요일이 맨 위 줄)
+    const firstDay = days.length ? new Date(days[0].date + 'T00:00:00').getDay() : 0;
+    for (let i = 0; i < firstDay; i += 1) {
+      const blank = document.createElement('span');
+      blank.className = 'day empty';
+      calendar.append(blank);
+    }
+    days.forEach(d => {
       const cell = document.createElement('span');
-      cell.className = 'day level-' + level;
-      cell.title = '미리보기 · ' + year + '년 ' + (week + 1) + '주차';
+      cell.className = 'day level-' + d.level;
+      cell.title = `${d.date} · ${d.count} contributions`;
+      calendar.append(cell);
+    });
+    const total = (data.total && data.total[year]) ?? days.reduce((sum, d) => sum + d.count, 0);
+    contributionTotal.textContent = total;
+    contributionLabel.textContent = `contributions in ${year}`;
+  } catch (error) {
+    // 불러오기 실패해도 페이지는 그대로, 안내만 바꿈
+    contributionTotal.textContent = '—';
+    calendar.replaceChildren();
+    for (let i = 0; i < 53 * 7; i += 1) {           // 빈 칸이라도 모양은 유지
+      const cell = document.createElement('span');
+      cell.className = 'day level-0';
       calendar.append(cell);
     }
+    contributionLabel.textContent = '기록을 불러오지 못했어요';
+    contributionNote.innerHTML = '<a href="https://github.com/subinlu22" target="_blank" rel="noopener">GitHub 프로필</a>에서 직접 볼 수 있어요.';
   }
 }
 yearSelect?.addEventListener('change', event => drawCalendar(event.target.value));
@@ -165,6 +194,16 @@ function makeImage(src, alt) {
   return img;
 }
 
+// 영상 파일이면 video, 아니면 img
+function makeMedia(src, alt) {
+  if (/\.(mp4|webm)$/i.test(src)) {
+    const video = document.createElement('video');
+    video.src = src; video.controls = true; video.autoplay = true; video.muted = true; video.loop = true; video.playsInline = true;
+    return video;
+  }
+  return makeImage(src, alt);
+}
+
 // [비교 슬라이더] 렌더 위에 와이어를 겹치고, 막대 위치만큼 와이어를 잘라서 보여줌
 function makeCompare(renderSrc, wireSrc, title) {
   const box = document.createElement('div');
@@ -207,12 +246,12 @@ document.querySelectorAll('.work-tile').forEach(tile => {
     } else if (wire) {
       workMedia.append(makeCompare(render, wire, title));
     } else {
-      workMedia.append(makeImage(render, title));
+      workMedia.append(makeMedia(render, title));
     }
     // 추가 이미지는 아래에 차례로
     (extra || '').split(',').filter(Boolean).forEach(item => {
       const [r, w] = item.trim().split('|');   // "렌더|와이어"로 적으면 비교 슬라이더
-      workMedia.append(w ? makeCompare(r, w, title) : makeImage(r, title));
+      workMedia.append(w ? makeCompare(r, w, title) : makeMedia(r, title));
     });
     workCaption.textContent = title;
     workViewer.showModal();
@@ -237,3 +276,117 @@ if (wireStage && wireHero && wireCanTilt) {
   });
   wireStage.addEventListener('pointerleave', () => { wireHero.style.transform = ''; });
 }
+
+
+// ── [히어로 빛 입자] 도화선 불꽃처럼 작은 빛이 와이어 선을 따라 기어감 ──
+// WIRE_MAP: 와이어 선이 있는 칸은 1, 없는 칸은 0인 지도 (car_wire_map.js)
+(() => {
+  const map = window.WIRE_MAP;
+  const cvs = document.querySelector('.wire-sparks');
+  if (!map || !cvs || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = cvs.getContext('2d');
+  const W = map.w, H = map.h;
+
+  // base64 글자 → 칸마다 0/1
+  const raw = atob(map.bits);
+  const grid = new Uint8Array(W * H);
+  for (let i = 0; i < W * H; i += 1) grid[i] = (raw.charCodeAt(i >> 3) >> (7 - (i & 7))) & 1;
+  const onLine = (x, y) => x >= 0 && y >= 0 && x < W && y < H && grid[y * W + x] === 1;
+  const starts = [];                       // 불꽃이 새로 태어날 수 있는 선 위 칸들
+  for (let i = 0; i < W * H; i += 4) if (grid[i]) starts.push(i);
+
+  const DIRS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];   // 8방향
+  const SPARK_COUNT = 55;
+  const sparks = [];
+  const respawn = s => {
+    const i = starts[(Math.random() * starts.length) | 0];
+    s.x = i % W; s.y = (i / W) | 0;
+    s.dir = (Math.random() * 8) | 0;
+    s.speed = 1 + Math.random() * 1.6;     // 한 프레임에 움직이는 칸 수
+    s.life = 50 + Math.random() * 110;     // 몇 프레임 동안 타는지
+    s.age = 0; s.carry = 0;
+    return s;
+  };
+  for (let i = 0; i < SPARK_COUNT; i += 1) sparks.push(respawn({}));
+
+  // 한 칸 전진: 지금 방향 기준 정면/좌우 45도 중 선이 이어지는 칸으로
+  const advance = s => {
+    const choices = [0, 1, -1].map(k => (s.dir + k + 8) % 8).filter(d => onLine(s.x + DIRS[d][0], s.y + DIRS[d][1]));
+    if (!choices.length) return false;     // 선이 끊기면 그 불꽃은 끝
+    s.dir = choices.includes(s.dir) && Math.random() < 0.8 ? s.dir : choices[(Math.random() * choices.length) | 0];
+    s.x += DIRS[s.dir][0]; s.y += DIRS[s.dir][1];
+    return true;
+  };
+
+  let scale = 1;
+  const resize = () => {
+    const ratio = Math.min(devicePixelRatio || 1, 2);
+    const box = cvs.getBoundingClientRect();
+    cvs.width = Math.round(box.width * ratio); cvs.height = Math.round(box.height * ratio);
+    scale = cvs.width / W;                 // 지도 1칸 = 캔버스 몇 픽셀
+  };
+  resize();
+  addEventListener('resize', resize);
+
+  let visible = true;                       // 화면 밖이면 멈춰서 배터리 아끼기
+  new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(cvs);
+
+  const frame = () => {
+    requestAnimationFrame(frame);
+    if (!visible) return;
+    // 이전 그림을 조금씩 지워서 꼬리가 남았다 사라지게
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const s of sparks) {
+      const px = s.x, py = s.y;
+      s.carry += s.speed;
+      let alive = true;
+      while (s.carry >= 1 && alive) { alive = advance(s); s.carry -= 1; }
+      s.age += 1;
+      const fade = Math.sin(Math.min(s.age / s.life, 1) * Math.PI);   // 서서히 밝아졌다 꺼짐
+      // 꼬리 선
+      ctx.strokeStyle = `rgba(150,215,255,${0.55 * fade})`;
+      ctx.lineWidth = 1.2 * scale;
+      ctx.beginPath(); ctx.moveTo((px + 0.5) * scale, (py + 0.5) * scale); ctx.lineTo((s.x + 0.5) * scale, (s.y + 0.5) * scale); ctx.stroke();
+      // 불꽃 머리 (반짝임)
+      const r = (1.6 + Math.random() * 1.4) * scale;
+      const g = ctx.createRadialGradient((s.x + 0.5) * scale, (s.y + 0.5) * scale, 0, (s.x + 0.5) * scale, (s.y + 0.5) * scale, r * 2.4);
+      g.addColorStop(0, `rgba(255,255,255,${0.95 * fade})`);
+      g.addColorStop(0.35, `rgba(160,225,255,${0.6 * fade})`);
+      g.addColorStop(1, 'rgba(90,170,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc((s.x + 0.5) * scale, (s.y + 0.5) * scale, r * 2.4, 0, Math.PI * 2); ctx.fill();
+      if (!alive || s.age > s.life) respawn(s);
+    }
+  };
+  frame();
+})();
+
+// ── [히어로 키워드 칩] 차 주위를 행성 궤도처럼 천천히 돌기 ──
+(() => {
+  const stage = document.querySelector('.wire-stage');
+  if (!stage || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const chips = [...stage.querySelectorAll('.float-chip')];
+  stage.classList.add('orbiting');
+  const TILT = -10 * Math.PI / 180;        // 궤도를 살짝 기울임
+  let angle = 0;
+  const tick = () => {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    const cx = w / 2, cy = h * 0.52, rx = w * 0.42, ry = h * 0.36;
+    chips.forEach((chip, i) => {
+      const a = angle + (i * Math.PI * 2) / chips.length;     // 칩끼리 같은 간격
+      const ex = Math.cos(a) * rx, ey = Math.sin(a) * ry;
+      const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
+      const y = cy + ex * Math.sin(TILT) + ey * Math.cos(TILT);
+      const front = (Math.sin(a) + 1) / 2;                     // 1이면 앞(아래쪽), 0이면 뒤(위쪽)
+      chip.style.transform = `translate(${x - chip.offsetWidth / 2}px, ${y - chip.offsetHeight / 2}px) scale(${0.86 + front * 0.18})`;
+      chip.style.opacity = (0.4 + front * 0.6).toFixed(2);
+      chip.style.zIndex = front > 0.5 ? 3 : 0;                // 뒤로 가면 차 뒤로 숨음
+    });
+    angle += 0.0022;                                           // 속도 (클수록 빠름)
+    requestAnimationFrame(tick);
+  };
+  tick();
+})();
