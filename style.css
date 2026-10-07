@@ -200,3 +200,6 @@ a.preview-badge{color:#a8bad5}
 .work-video{display:block;width:min(1000px,88vw);aspect-ratio:16/9;border:0;background:#000}
 .works .section-title>p{line-height:1.7}
 .work-note{margin:0 0 6px;font-size:12px;color:#8d9bb5;text-align:center}
+/* ── 10/7 수정11: AI 배경 표시 ── */
+.work-ai{position:absolute;left:10px;top:10px;font-size:11px;padding:4px 8px;border-radius:12px;background:rgba(8,12,24,.72);color:#dce6f5;border:1px solid rgba(206,222,246,.25)}
+.work-note{margin:2px 0 8px;font-size:13px;color:#b9c7dd;text-align:center}
