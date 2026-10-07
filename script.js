@@ -231,12 +231,13 @@ function makeCompare(renderSrc, wireSrc, title) {
   return box;
 }
 
-document.querySelectorAll('.work-tile').forEach(tile => {
+document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D 작업 타일 + 프로젝트 카드 둘 다 같은 크게 보기 창 사용
   const { title, render, wire, extra, thumb, video, note } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
-  if (thumb) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
+  if (thumb && tile.classList.contains('work-tile')) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
 
-  tile.addEventListener('click', () => {
+  tile.addEventListener('click', event => {
+    if (event.target.closest('a')) return;      // 카드 안의 GitHub 링크는 그대로 이동
     workMedia.replaceChildren();
     // 유튜브 영상이 있으면 맨 위에 (16:9 크기)
     if (video) {
@@ -268,8 +269,14 @@ document.querySelectorAll('.work-tile').forEach(tile => {
     }
     // 추가 이미지는 아래에 차례로
     (extra || '').split(',').filter(Boolean).forEach(item => {
-      const [r, w] = item.trim().split('|');   // "렌더|와이어"로 적으면 비교 슬라이더
+      const [body, caption] = item.trim().split('::');   // "파일::설명"으로 적으면 이미지 아래에 설명
+      const [r, w] = body.split('|');                    // "렌더|와이어"로 적으면 비교 슬라이더
       workMedia.append(w ? makeCompare(r, w, title) : makeMedia(r, title));
+      if (caption) {
+        const p = document.createElement('p');
+        p.className = 'work-note'; p.textContent = caption;
+        workMedia.append(p);
+      }
     });
     workCaption.textContent = title;
     workViewer.showModal();
