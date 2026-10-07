@@ -212,4 +212,3 @@ a.preview-badge{color:#a8bad5}
 .project-more:hover{background:rgba(150,180,230,.2)}
 @media(max-width:760px){.project-more{left:20px;bottom:17px}}
 .project-open .project-copy{padding-bottom:62px}
-.project-open .thumb-glass{left:12px;right:auto}
