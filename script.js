@@ -232,7 +232,7 @@ function makeCompare(renderSrc, wireSrc, title) {
 }
 
 document.querySelectorAll('.work-tile').forEach(tile => {
-  const { title, render, wire, extra, thumb, video } = tile.dataset;
+  const { title, render, wire, extra, thumb, video, note } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
   if (thumb) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
 
@@ -259,6 +259,12 @@ document.querySelectorAll('.work-tile').forEach(tile => {
       workMedia.append(makeCompare(render, wire, title));
     } else {
       workMedia.append(makeMedia(render, title));
+    }
+    // 첫 이미지 설명 (예: 배경은 AI로 생성)
+    if (note) {
+      const p = document.createElement('p');
+      p.className = 'work-note'; p.textContent = note;
+      workMedia.append(p);
     }
     // 추가 이미지는 아래에 차례로
     (extra || '').split(',').filter(Boolean).forEach(item => {

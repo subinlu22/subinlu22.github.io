@@ -199,3 +199,4 @@ a.preview-badge{color:#a8bad5}
 /* ── 10/7 수정10: 유튜브 영상 / 3D Works 툴 목록 ── */
 .work-video{display:block;width:min(1000px,88vw);aspect-ratio:16/9;border:0;background:#000}
 .works .section-title>p{line-height:1.7}
+.work-note{margin:0 0 6px;font-size:12px;color:#8d9bb5;text-align:center}
