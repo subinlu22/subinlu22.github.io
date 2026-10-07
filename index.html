@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#080b16">
+  <meta name="description" content="정수빈 포트폴리오 — Unity, 머신비전, 3D 모델링 작업 모음">
+  <title>Subin Jung — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><div class="noise"></div>
+  <header class="site-nav">
+    <a href="#home" class="wordmark">SUBIN JUNG</a>
+    <nav><a href="#about">About</a><a href="#contributions">Commits</a><a href="#projects">Projects</a><a href="#works">3D Works</a><a href="#contact">Contact</a></nav>
+    <a class="nav-cta" href="https://github.com/subinlu22" target="_blank" rel="noopener">GitHub <b>↗</b></a>
+  </header>
+
+  <main>
+    <section class="hero section-wrap" id="home">
+      <div class="hero-copy">
+        <div class="availability"><i></i> 포트폴리오</div>
+        <p class="overline">UNITY · MACHINE VISION · 3D MODELING</p>
+        <h1>정수빈</h1>
+        <p class="hero-en">Subin Jung</p>
+        <h2>Unity <span>·</span> Vision <span>·</span> 3D</h2>
+                <div class="hero-buttons"><a class="primary-button" href="#projects">프로젝트 보기 <b>↘</b></a><a class="quiet-button" href="#contact">연락하기 <span>→</span></a></div>
+        <p class="resume-note">MODEL · CODE · VISION <span>·</span> SEOUL, KR</p>
+      </div>
+      <div class="hero-stage model-stage" aria-label="저폴리곤 3D 메쉬 모델">
+        <div class="orbit orbit-1"></div><div class="orbit orbit-2"></div><div class="orbit orbit-3"></div>
+        <div class="core model-core"><canvas id="polygonModel" aria-label="회전하는 아이스 블루 저폴리곤 메쉬"></canvas><div class="core-inner"><small>MESH STUDY / 01</small></div></div>
+        <div class="float-chip chip-cpp"><b>&lt;/&gt;</b><span>Unity · C#</span></div>
+        <div class="float-chip chip-3d"><b>◈</b><span>3D Modeling</span></div>
+        <div class="float-chip chip-sensor"><b>◎</b><span>Machine Vision</span></div>
+        <span class="stage-caption">LOW-POLY FORM · PREVIEW MESH</span>
+      </div>
+      <a class="scroll-cue" href="#contributions"><span>SCROLL TO EXPLORE</span><b>↓</b></a>
+    </section>
+    <section class="contribution-section section-wrap" id="contributions">
+      <div class="contribution-head"><div><p class="overline">GITHUB / CONTRIBUTIONS</p><h2>꾸준히 쌓아가는 기록<span>.</span></h2></div><label class="year-picker">YEAR <select id="contributionYear" aria-label="달력 미리보기 연도"><option>2026</option><option>2025</option><option>2024</option><option>2023</option></select></label></div>
+      <div class="contribution-card">
+        <div class="contribution-top"><div><strong id="contributionTotal">—</strong><span>sample grid · 실제 활동 연결 대기</span></div><span class="preview-badge"><i></i> PREVIEW · GITHUB 연결 대기</span></div>
+        <div class="calendar-scroll"><div class="month-axis"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div><div class="calendar-body"><div class="weekday-axis"><span>Mon</span><span>Wed</span><span>Fri</span></div><div class="contribution-grid" id="contributionGrid" role="img" aria-label="GitHub 기여 달력 미리보기"></div></div></div>
+        <div class="contribution-bottom"><span>미리보기 데이터입니다. GitHub 사용자명을 연결하면 실제 기록으로 바뀝니다.</span><div class="legend"><span>Less</span><i class="level-0"></i><i class="level-1"></i><i class="level-2"></i><i class="level-3"></i><i class="level-4"></i><span>More</span></div></div>
+      </div>
+    </section>
+
+    <section class="about content-section section-wrap" id="about">
+      <div class="section-label"><span>01</span> ABOUT</div>
+      <div class="about-content"><h2 class="about-keywords">3D Modeling<br>Machine Vision<br>Unity · Digital Twin<span>.</span></h2>
+        <p class="about-sub">Experience</p>
+        <div class="tags about-tags"><i>모델링 · 텍스처링</i><i>머신비전 검사 시스템</i><i>CNN 학습 · ONNX 추론</i><i>Unity 디지털트윈</i><i>UDP 실시간 연동</i><i>URDF · 로봇팔 시뮬레이션</i><i>손 인식 인터랙션</i><i>생성형 AI 서비스</i><i>라즈베리파이 AI 기기</i><i>데스크톱 앱</i></div>
+      </div>
+    </section>
+
+    <section class="projects content-section" id="projects"><div class="section-wrap">
+      <div class="section-label"><span>02</span> SELECTED PROJECTS</div><div class="section-main">
+        <div class="section-title"><h2>Projects.</h2><p>Grouped by category.</p></div>
+        <div class="project-list">
+          <h4 class="project-group">디지털트윈 · 머신비전</h4>
+          <article class="project glass-project"><div class="project-thumb thumb-code"><span class="thumb-count">PROJECT / 01</span><div class="code-card"><div class="code-head"><i></i><i></i><i></i><span>Form1.cs</span></div><pre><span>01</span> <b>// 프레임마다 판정 흐름</b>
+<span>02</span> ClassifyLidColor();
+<span>03</span> CropLidArea();
+<span>04</span> ExtractDigitPatchForCnn();
+<span>05</span> RunDigitInference();   <b>// CNN</b>
+<span>06</span> RecordInspection();    <b>// → Unity</b></pre></div><div class="thumb-glass">SOLO <i></i></div></div><div class="project-copy"><div class="project-topline"><span>MACHINE VISION</span><span>2026</span></div><h3>Industrial Camera<br>Inspection</h3><p>컨베이어 위 뚜껑의 색과 숫자를 실시간으로 읽어 양품/불량을 판정합니다.</p><div class="tags"><i>C#</i><i>OpenCV</i><i>PyTorch CNN</i><i>ONNX Runtime</i></div><a href="https://github.com/subinlu22/CameraNumberDetect" target="_blank" rel="noopener">GitHub <b>↗</b></a></div></article>
+          <article class="project glass-project"><div class="project-thumb thumb-board"><span class="thumb-count">PROJECT / 02</span><svg viewBox="0 0 520 250" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="60" y="150" width="400" height="34" rx="17"/><circle cx="77" cy="167" r="11"/><circle cx="443" cy="167" r="11"/><ellipse cx="170" cy="138" rx="34" ry="11"/><ellipse cx="270" cy="138" rx="34" ry="11"/><ellipse cx="370" cy="138" rx="34" ry="11" stroke-dasharray="4 4"/><path d="M270 30v22m-26 0h52l-8 20h-36z"/><path d="M270 80l-40 46m40-46 40 46" stroke-dasharray="3 5"/></g></svg><div class="thumb-glass">SOLO <i></i></div></div><div class="project-copy"><div class="project-topline"><span>DIGITAL TWIN</span><span>2026</span></div><h3>Camera<br>Digital Twin</h3><p>카메라 판정 결과를 UDP로 받아 Unity 벨트 위에 같은 뚜껑을 재현합니다. SO-101 로봇팔 연동 중.</p><div class="tags"><i>Unity 6</i><i>C#</i><i>UDP</i><i>URDF</i><i>ArticulationBody</i></div><a href="https://github.com/subinlu22/CameraDigitalTwin" target="_blank" rel="noopener">GitHub <b>↗</b></a></div></article>
+          <h4 class="project-group">AI 서비스</h4>
+          <article class="project glass-project"><div class="project-thumb thumb-drone"><span class="thumb-count">PROJECT / 03</span><svg viewBox="0 0 520 250" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="70" y="45" width="150" height="150" rx="6"/><circle cx="145" cy="120" r="34"/><circle cx="145" cy="120" r="5"/><path d="M260 125h12l10-40 14 80 14-62 12 44 12-30 12 20 12-12 12 8 12-4 12 0 12 0" stroke-linejoin="round"/></g></svg><div class="thumb-glass">TEAM 2 <span>AI · BACKEND</span></div></div><div class="project-copy"><div class="project-topline"><span>GENERATIVE AI</span><span>2026</span></div><h3>Dopamine</h3><p>일기·사진·음성을 입력하면 AI가 가사, 음악, 앨범 커버를 만들어줍니다. 생성형 AI ICT 공모전 출품.</p><div class="tags"><i>FastAPI</i><i>Gemini API</i><i>ACE-Step</i><i>SDXL-Turbo</i></div><a href="https://github.com/subinlu22/Dopamine" target="_blank" rel="noopener">GitHub <b>↗</b></a></div></article>
+          <article class="project glass-project"><div class="project-thumb thumb-board"><span class="thumb-count">PROJECT / 04</span><svg viewBox="0 0 520 250" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="150" y="35" width="220" height="160" rx="8"/><rect x="168" y="53" width="184" height="124" rx="3"/><path d="M180 165l50-55 40 38 25-22 45 39" stroke-linejoin="round"/><circle cx="310" cy="85" r="12"/><path d="M230 195l-20 26m100-26 20 26"/></g></svg><div class="thumb-glass">SOLO <i></i></div></div><div class="project-copy"><div class="project-topline"><span>EMBEDDED AI</span><span>2026</span></div><h3>Memorium</h3><p>치매 어르신의 기억을 돕는 AI 스마트 액자. 임베디드 소프트웨어 경진대회 출품.</p><div class="tags"><i>Raspberry Pi 5</i><i>Hailo</i><i>Flask</i><i>DeepFace</i></div><a href="https://github.com/subinlu22/memorium" target="_blank" rel="noopener">GitHub <b>↗</b></a></div></article>
+          <h4 class="project-group">인터랙션 · 도구</h4>
+          <article class="project glass-project"><div class="project-thumb thumb-drone"><span class="thumb-count">PROJECT / 05</span><svg viewBox="0 0 520 250" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="170" cy="120" r="6"/><circle cx="205" cy="80" r="6"/><circle cx="160" cy="70" r="5"/><circle cx="130" cy="100" r="5"/><path d="M130 100l40 20 35-40m-45-10 10 50" stroke-dasharray="3 4"/><path d="M190 100q14-8 22 2" /><path d="M320 90l50-20 50 20v60l-50 20-50-20z"/><path d="M320 90l50 20 50-20m-50 20v60"/></g></svg><div class="thumb-glass">SOLO <i></i></div></div><div class="project-copy"><div class="project-topline"><span>INTERACTION</span><span>2026</span></div><h3>Hand<br>Block</h3><p>웹캠 손 인식으로 Unity 속 블록을 집고, 옮기고, 던집니다.</p><div class="tags"><i>MediaPipe</i><i>Python</i><i>UDP</i><i>Unity</i></div><a aria-disabled="true">영상 추가 예정</a></div></article>
+          <article class="project glass-project"><div class="project-thumb thumb-board"><span class="thumb-count">PROJECT / 06</span><svg viewBox="0 0 520 250" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="120" y="50" width="150" height="150" rx="5" transform="rotate(-5 195 125)"/><rect x="250" y="40" width="150" height="150" rx="5" transform="rotate(4 325 115)"/><path d="M270 80h24m10 0h70m-104 30h24m10 0h56m-90 30h24m10 0h64"/><rect x="270" y="72" width="16" height="16" rx="2" transform="rotate(4 278 80)"/><path d="M140 95h100m-100 25h80m-80 25h90" stroke-dasharray="2 5"/></g></svg><div class="thumb-glass">SOLO <i></i></div></div><div class="project-copy"><div class="project-topline"><span>DESKTOP APP</span><span>2026</span></div><h3>Sticky<br>Note</h3><p>바탕화면 포스트잇 메모를 닫는 순간 노션에 저장하는 데스크톱 앱.</p><div class="tags"><i>Electron</i><i>Node.js</i><i>Notion API</i></div><a href="https://github.com/subinlu22/sticky-note" target="_blank" rel="noopener">GitHub <b>↗</b></a></div></article>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="works content-section section-wrap" id="works">
+      <div class="section-label"><span>03</span> 3D WORKS</div><div class="section-main">
+        <div class="section-title"><h2>3D Works.</h2><p>Modeling · Texturing<br>Maya · Substance Painter</p></div>
+        <div class="work-grid">
+          <button class="work-tile" type="button" data-type="image" data-src="" data-title="Character"><span class="work-thumb"><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M60 18l36 20v44L60 102 24 82V38z"/><path d="M24 38l36 20 36-20M60 58v44"/></g></svg></span><span class="work-name">Character</span><span class="work-ko">캐릭터 모델링</span></button>
+          <button class="work-tile" type="button" data-type="image" data-src="" data-title="Architecture"><span class="work-thumb"><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M60 18l36 20v44L60 102 24 82V38z"/><path d="M24 38l36 20 36-20M60 58v44"/></g></svg></span><span class="work-name">Architecture</span><span class="work-ko">건축 더미</span></button>
+          <button class="work-tile" type="button" data-type="image" data-src="" data-title="Military Vehicle"><span class="work-thumb"><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M60 18l36 20v44L60 102 24 82V38z"/><path d="M24 38l36 20 36-20M60 58v44"/></g></svg></span><span class="work-name">Military Vehicle</span><span class="work-ko">군용 차량</span></button>
+          <button class="work-tile" type="button" data-type="image" data-src="" data-title="Soldier"><span class="work-thumb"><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M60 18l36 20v44L60 102 24 82V38z"/><path d="M24 38l36 20 36-20M60 58v44"/></g></svg></span><span class="work-name">Soldier</span><span class="work-ko">군인</span></button>
+          <button class="work-tile" type="button" data-type="image" data-src="" data-title="Weapon"><span class="work-thumb"><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M60 18l36 20v44L60 102 24 82V38z"/><path d="M24 38l36 20 36-20M60 58v44"/></g></svg></span><span class="work-name">Weapon</span><span class="work-ko">무기</span></button>
+          <button class="work-tile" type="button" data-type="image" data-src="" data-title="More"><span class="work-thumb"><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M60 18l36 20v44L60 102 24 82V38z"/><path d="M24 38l36 20 36-20M60 58v44"/></g></svg></span><span class="work-name">More</span><span class="work-ko">추가 작업</span></button>
+        </div>
+      </div>
+    </section>
+
+    <dialog class="work-viewer" id="workViewer" aria-label="3D 작업 크게 보기">
+      <button class="work-close" type="button" aria-label="닫기">✕</button>
+      <div class="work-media" id="workMedia"></div>
+      <p class="work-caption" id="workCaption"></p>
+    </dialog>
+
+    <section class="contact-section" id="contact"><div class="section-wrap contact-inner"><div class="section-label"><span>04</span> CONTACT</div><div class="contact-content"><div><p class="availability"><i></i> CONTACT</p><h2>Get in touch</h2></div><div class="contact-links"><a class="contact-mail" href="mailto:kbs5968@naver.com">kbs5968@naver.com <b>↗</b></a><a class="contact-mail" href="https://github.com/subinlu22" target="_blank" rel="noopener">github.com/subinlu22 <b>↗</b></a></div></div></div></section>
+  </main>
+  <footer class="footer section-wrap"><a href="#home" class="wordmark">SUBIN JUNG</a><small>UNITY · MACHINE VISION · 3D MODELING</small><a href="#home">BACK TO TOP ↑</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
