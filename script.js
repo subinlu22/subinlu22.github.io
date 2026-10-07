@@ -232,7 +232,7 @@ function makeCompare(renderSrc, wireSrc, title) {
 }
 
 document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D 작업 타일 + 프로젝트 카드 둘 다 같은 크게 보기 창 사용
-  const { title, render, wire, extra, thumb, video, note } = tile.dataset;
+  const { title, render, wire, extra, thumb, video, videoCaptions, note } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
   if (thumb && tile.classList.contains('work-tile')) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
 
@@ -253,6 +253,12 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
       frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
       frame.allowFullscreen = true;
       workMedia.append(frame);
+      const caption = (videoCaptions || '').split(',')[index]?.trim();
+      if (caption) {
+        const p = document.createElement('p');
+        p.className = 'work-note'; p.textContent = caption;
+        workMedia.append(p);
+      }
     });
     if (!render && !video) {
       // 아직 이미지를 안 넣은 타일
