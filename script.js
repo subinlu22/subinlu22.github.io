@@ -151,44 +151,72 @@ if(finePointer&&motionAllowed){
 }
 
 
-// ── [3D Works] 타일을 누르면 사진/영상을 크게 보여주는 창 ──
-// 타일의 data-src에 파일 경로를 넣으면 썸네일과 크게 보기에 자동으로 쓰임
-// data-type="image"면 사진, "video"면 영상
+// ── [3D Works] 타일을 누르면 작업을 크게 보여주는 창 ──
+// 타일 속성: data-render(렌더 이미지), data-wire(와이어프레임, 있으면 비교 슬라이더),
+//           data-extra(추가 이미지, 쉼표로 구분), data-thumb(타일에 보일 작은 이미지)
 const workViewer = document.querySelector('#workViewer');
 const workMedia = document.querySelector('#workMedia');
 const workCaption = document.querySelector('#workCaption');
 
+// 이미지 태그 하나 만드는 도우미
+function makeImage(src, alt) {
+  const img = document.createElement('img');
+  img.src = src; img.alt = alt; img.decoding = 'async';
+  return img;
+}
+
+// [비교 슬라이더] 렌더 위에 와이어를 겹치고, 막대 위치만큼 와이어를 잘라서 보여줌
+function makeCompare(renderSrc, wireSrc, title) {
+  const box = document.createElement('div');
+  box.className = 'compare';
+  const base = makeImage(renderSrc, title + ' 렌더링');
+  const top = makeImage(wireSrc, title + ' 와이어프레임');
+  top.className = 'compare-top';
+  const line = document.createElement('span');
+  line.className = 'compare-line';
+  const range = document.createElement('input');   // 손가락/마우스로 끄는 투명한 막대
+  range.type = 'range'; range.min = 0; range.max = 100; range.value = 50;
+  range.className = 'compare-range';
+  range.setAttribute('aria-label', '렌더링과 와이어프레임 비교');
+  const labels = document.createElement('div');
+  labels.className = 'compare-labels';
+  labels.innerHTML = '<span>Render</span><span>Wireframe</span>';
+  // 막대 값(0~100)에 맞춰 와이어 이미지의 왼쪽을 잘라냄 → 왼쪽은 렌더, 오른쪽은 와이어
+  const update = () => {
+    top.style.clipPath = `inset(0 0 0 ${range.value}%)`;
+    line.style.left = range.value + '%';
+  };
+  range.addEventListener('input', update);
+  update();
+  box.append(base, top, line, labels, range);
+  return box;
+}
+
 document.querySelectorAll('.work-tile').forEach(tile => {
-  const src = tile.dataset.src;
-  const thumb = tile.querySelector('.work-thumb');
-  // 사진이 지정된 타일은 기본 아이콘 대신 그 사진을 썸네일로 표시
-  if (src && tile.dataset.type === 'image') {
-    const img = document.createElement('img');
-    img.src = src; img.alt = tile.dataset.title; img.loading = 'lazy';
-    thumb.replaceChildren(img);
-  }
+  const { title, render, wire, extra, thumb } = tile.dataset;
+  // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
+  if (thumb) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
+
   tile.addEventListener('click', () => {
     workMedia.replaceChildren();
-    if (!src) {
-      // 아직 파일을 안 넣은 타일
+    if (!render) {
+      // 아직 이미지를 안 넣은 타일
       const empty = document.createElement('p');
       empty.className = 'work-empty'; empty.textContent = '이미지를 준비 중입니다.';
       workMedia.append(empty);
-    } else if (tile.dataset.type === 'video') {
-      const video = document.createElement('video');
-      video.src = src; video.controls = true; video.autoplay = true;
-      workMedia.append(video);
+    } else if (wire) {
+      workMedia.append(makeCompare(render, wire, title));
     } else {
-      const img = document.createElement('img');
-      img.src = src; img.alt = tile.dataset.title;
-      workMedia.append(img);
+      workMedia.append(makeImage(render, title));
     }
-    workCaption.textContent = tile.dataset.title;
+    // 추가 이미지는 아래에 차례로
+    (extra || '').split(',').filter(Boolean).forEach(src => workMedia.append(makeImage(src.trim(), title)));
+    workCaption.textContent = title;
     workViewer.showModal();
   });
 });
 
-// 닫기 버튼 / 바깥 클릭으로 닫기, 닫힐 때 영상 정지
+// 닫기 버튼 / 바깥 클릭으로 닫기
 workViewer?.querySelector('.work-close').addEventListener('click', () => workViewer.close());
 workViewer?.addEventListener('click', event => { if (event.target === workViewer) workViewer.close(); });
 workViewer?.addEventListener('close', () => workMedia.replaceChildren());
