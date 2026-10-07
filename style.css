@@ -189,3 +189,10 @@ a.preview-badge{color:#a8bad5}
 #contributionNote a{color:#a9cfff;text-decoration:underline}
 .contact-content .contact-links{margin-top:22px;flex-direction:column;gap:16px}
 .contact-content .contact-mail{font-size:clamp(18px,2.4vw,28px);font-weight:600;padding-bottom:10px}
+/* ── 10/7 수정9: 칩 또렷하게 / 썸네일 꽉 차게 / 연락 글씨 크기 ── */
+.orbiting .float-chip{will-change:auto;backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(16,26,46,.88);color:#e3ecf8;font-weight:600}
+.work-thumb>img{object-fit:cover;object-position:center 30%;background:none}
+.contact-content .availability{font-size:12px;padding:9px 15px;letter-spacing:.1em}
+.contact-content .contact-links{margin-top:20px;gap:12px}
+.contact-content .contact-mail{font-size:clamp(14px,1.5vw,18px);font-weight:500;padding-bottom:8px}
+@media(min-width:761px){.orbiting .float-chip{font-size:11px;padding:9px 14px}}

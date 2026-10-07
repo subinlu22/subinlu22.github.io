@@ -302,7 +302,7 @@ if (wireStage && wireHero && wireCanTilt) {
     const i = starts[(Math.random() * starts.length) | 0];
     s.x = i % W; s.y = (i / W) | 0;
     s.dir = (Math.random() * 8) | 0;
-    s.speed = 0.08 + Math.random() * 0.12;  // 한 프레임에 움직이는 칸 수 (아주 느리게)
+    s.speed = 0.12 + Math.random() * 0.16;  // 한 프레임에 움직이는 칸 수 (느리게)
     s.life = 420 + Math.random() * 480;     // 몇 프레임 동안 빛나는지 (약 7~15초)
     s.age = 0; s.carry = 0; s.phase = Math.random() * Math.PI * 2; s.trail = [];
     return s;
@@ -357,10 +357,12 @@ if (wireStage && wireHero && wireCanTilt) {
       const fade = Math.sin(Math.min(s.age / s.life, 1) * Math.PI);   // 서서히 밝아졌다 꺼짐
       const cx = (s.x + 0.5) * scale, cy = (s.y + 0.5) * scale;
       // 꼬리: 지나온 자리를 이어서 아주 얇고 희미하게 (뒤로 갈수록 투명)
-      if (px !== s.x || py !== s.y) { s.trail.push([cx, cy]); if (s.trail.length > 18) s.trail.shift(); }
-      ctx.lineWidth = 0.5 * ratioPx;
+      if (px !== s.x || py !== s.y) { s.trail.push([cx, cy]); if (s.trail.length > 70) s.trail.shift(); }
+      ctx.lineCap = 'round';
       for (let t = 1; t < s.trail.length; t += 1) {
-        ctx.strokeStyle = `rgba(190,230,255,${0.3 * fade * (t / s.trail.length)})`;
+        const k = t / s.trail.length;                          // 0=꼬리 끝, 1=머리
+        ctx.strokeStyle = `rgba(200,235,255,${0.75 * fade * k * k})`;
+        ctx.lineWidth = (0.25 + 1.0 * k) * ratioPx;
         ctx.beginPath(); ctx.moveTo(s.trail[t - 1][0], s.trail[t - 1][1]); ctx.lineTo(s.trail[t][0], s.trail[t][1]); ctx.stroke();
       }
       // 머리: 뾰족한 다이아몬드 반짝임 (가늘어지는 십자 + 짧은 대각선)
@@ -395,8 +397,8 @@ if (wireStage && wireHero && wireCanTilt) {
       const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
       const y = cy + ex * Math.sin(TILT) + ey * Math.cos(TILT);
       const front = (Math.sin(a) + 1) / 2;                     // 1이면 앞(아래쪽), 0이면 뒤(위쪽)
-      chip.style.transform = `translate(${x - chip.offsetWidth / 2}px, ${y - chip.offsetHeight / 2}px) scale(${0.86 + front * 0.18})`;
-      chip.style.opacity = (0.4 + front * 0.6).toFixed(2);
+      chip.style.transform = `translate3d(${Math.round(x - chip.offsetWidth / 2)}px, ${Math.round(y - chip.offsetHeight / 2)}px, 0)`;
+      chip.style.opacity = (0.72 + front * 0.28).toFixed(2);
       chip.style.zIndex = front > 0.5 ? 3 : 0;                // 뒤로 가면 차 뒤로 숨음
     });
     angle += 0.0022;                                           // 속도 (클수록 빠름)
