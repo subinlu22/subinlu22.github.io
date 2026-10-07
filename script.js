@@ -239,16 +239,21 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
   tile.addEventListener('click', event => {
     if (event.target.closest('a')) return;      // 카드 안의 GitHub 링크는 그대로 이동
     workMedia.replaceChildren();
-    // 유튜브 영상이 있으면 맨 위에 (16:9 크기)
-    if (video) {
+    // 유튜브 영상이 있으면 맨 위에 (16:9 크기). 여러 영상은 쉼표로 구분.
+    const videos = (video || '').split(',').map(url => url.trim()).filter(Boolean);
+    videos.forEach((url, index) => {
+      const videoUrl = new URL(url);
+      const videoId = videoUrl.hostname.includes('youtu.be')
+        ? videoUrl.pathname.slice(1)
+        : videoUrl.searchParams.get('v');
       const frame = document.createElement('iframe');
       frame.className = 'work-video';
-      frame.src = video + '?rel=0';
-      frame.title = title + ' 영상';
+      frame.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
+      frame.title = `${title} 영상 ${index + 1}`;
       frame.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
       frame.allowFullscreen = true;
       workMedia.append(frame);
-    }
+    });
     if (!render && !video) {
       // 아직 이미지를 안 넣은 타일
       const empty = document.createElement('p');
