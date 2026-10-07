@@ -42,8 +42,8 @@ async function drawCalendar(year) {
       cell.className = 'day level-0';
       calendar.append(cell);
     }
-    contributionLabel.textContent = '기록을 불러오지 못했어요';
-    contributionNote.innerHTML = '<a href="https://github.com/subinlu22" target="_blank" rel="noopener">GitHub 프로필</a>에서 직접 볼 수 있어요.';
+    contributionLabel.textContent = '기록을 불러오지 못했습니다';
+    contributionNote.innerHTML = '<a href="https://github.com/subinlu22" target="_blank" rel="noopener">GitHub 프로필</a>에서 직접 확인할 수 있습니다.';
   }
 }
 yearSelect?.addEventListener('change', event => drawCalendar(event.target.value));
@@ -235,22 +235,22 @@ function makeCompare(renderSrc, wireSrc, title) {
 // summary=한 줄 소개 / features=핵심 기능 / solved=[문제, 해결] 목록
 const PROJECT_INFO = {
   'Industrial Camera Inspection': {
-    summary: 'Hikrobot 산업용 카메라로 컨베이어 위 뚜껑의 색(화이트·파랑·빨강)과 숫자(1·2·3)를 실시간으로 인식해 양품/불량을 판정하고 카운트합니다. 결과는 UDP로 Unity 디지털트윈에 전송돼요.',
+    summary: 'Hikrobot 산업용 카메라로 컨베이어 위 뚜껑의 색(화이트·파랑·빨강)과 숫자(1·2·3)를 실시간으로 인식해 양품/불량을 판정하고 카운트합니다. 결과는 UDP로 Unity 디지털트윈에 전송됩니다.',
     features: ['배경 학습(MOG2)으로 벨트 무늬를 걸러내고 뚜껑 위치 검출', 'HSV 색 판정 + CNN(PyTorch → ONNX) 숫자 인식, 검증 정확도 99.3%', '같은 결과가 3프레임 연속 나오면 카운트 확정, 검사 로그 CSV 저장', '벨트 이동 중 인식, 4cm 간격으로 연달아 올려도 카운트 누락 없음', '배경 학습 저장/불러오기로 시작 시간 약 200초 → 몇 초'],
     solved: [['벨트 반사광이 뚜껑으로 오인됨', '배경 학습 + 원형도 필터 + 레일 반사를 물리적으로 차폐'], ['글리터 뚜껑만 숫자 오인식', '색 거리 계산 전에 블러, 학습·추론 전처리를 똑같이 맞춰 재학습'], ['연달아 올리면 카운트 누락', '위치가 뒤로 점프하면 새 뚜껑으로 보고 잠금 해제']],
   },
   'Camera Digital Twin': {
-    summary: '카메라 프로그램의 판정 결과를 UDP로 받아 Unity 벨트 위에 같은 색·숫자의 뚜껑을 실시간으로 재현하는 디지털트윈입니다. 벨트·카메라·링라이트·뚜껑은 Maya로 직접 모델링했어요.',
+    summary: '카메라 프로그램의 판정 결과를 UDP로 받아 Unity 벨트 위에 같은 색·숫자의 뚜껑을 실시간으로 재현하는 디지털트윈입니다. 벨트·카메라·링라이트·뚜껑은 Maya로 직접 모델링했습니다.',
     features: ['UDP 수신 → 같은 뚜껑을 복제해 벨트 위로 이동, 끝에서 낙하', '글래스 대시보드: 총 검사·양품/불량·색상별·숫자별 통계', '판정 순간 화면 테두리 빛 (양품 초록 / 불량 빨강)', 'SO-101 로봇팔 URDF 가져오기 + 관절 테스트 (진행 중)'],
     solved: [['수신 스레드에서 Unity 오브젝트를 만지면 에러', '수신은 별도 스레드, 처리는 큐에 넣어 Update에서'], ['벨트 위 물리 이동이 매번 달라짐', '벨트 위는 위치를 직접 옮기고 낙하에만 물리 사용'], ['로봇팔 URDF 가져오면 메시가 끊김', '충돌 블록만 뺀 visual 전용 URDF로 우회']],
   },
   'Dopamine': {
-    summary: '일기·사진·음성·영상을 입력하면 AI가 가사, 음악, 앨범 커버를 만들어주는 감정 기록 서비스입니다. 생성형 AI ICT 공모전 출품작이고, 2인 팀에서 AI 파이프라인과 백엔드를 맡았어요.',
+    summary: '일기·사진·음성·영상을 입력하면 AI가 가사, 음악, 앨범 커버를 만들어주는 감정 기록 서비스입니다. 생성형 AI ICT 공모전 출품작이고, 2인 팀에서 AI 파이프라인과 백엔드를 맡았습니다.',
     features: ['장르·악기·길이를 고르면 길이를 반영해 가사 생성 (Gemini)', '완성곡 2개(Ver.1 / Ver.2)를 만들어 마음에 드는 쪽 선택 (ACE-Step)', '앨범 커버: 기본 그라데이션 + AI 커버 생성 (SDXL-Turbo, 스타일 5종)', '앨범 커버 위에 가사 오버레이'],
     solved: [['노래+커버를 같이 생성하면 타임아웃', 'SDXL을 별도 프로세스로 분리, 끝나면 종료해 GPU 메모리 반환'], ['미리듣기와 풀버전 멜로디가 다름', '처음부터 풀버전 2곡을 생성하는 방식으로 변경'], ['인트로가 30초씩 늘어짐', '옵션 선택 → 가사 생성 순서로 바꿔 노래 길이를 가사에 반영']],
   },
   'Memorium': {
-    summary: '치매 어르신의 기억을 돕는 라즈베리파이 기반 AI 스마트 액자입니다. 임베디드 소프트웨어 경진대회 자유공모 부문에 1인으로 출품했어요. "틀림을 드러내지 않는 UI"가 설계 원칙이에요.',
+    summary: '치매 어르신의 기억을 돕는 라즈베리파이 기반 AI 스마트 액자입니다. 임베디드 소프트웨어 경진대회 자유공모 부문에 1인으로 출품했습니다. "틀림을 드러내지 않는 UI"가 설계 원칙입니다.',
     features: ['사진·영상 슬라이드쇼 + 음성 안내, 복약 알림', '표정 분석(DeepFace)으로 기억 인지 반응 확인', '가족이 사진·설정을 관리하는 웹 설정 페이지', '오답·반복 상황에서도 빨간색·X·경고음 없이 공감 먼저 반응'],
     solved: [['Hailo 모듈이 인식되지 않음', 'M.2 HAT+는 PCIe 수동 활성화 필요 → config.txt에 dtparam=pciex1'], ['학교 네트워크에서 SSH/SCP 불가', '모니터 직결로 작업하고 데이터는 클라우드를 거쳐 이전'], ['라즈베리파이에서 실시간 프레임 저하', '개선 전/후 동작은 위 영상에서 확인']],
   },
@@ -291,6 +291,99 @@ function makeFigure(media, caption, extraClass = '') {
   return fig;
 }
 
+// 묶음 제목 (예: Unity / Modeling / Real)
+function makeGroupTitle(text) {
+  const h = document.createElement('h5');
+  h.className = 'work-group'; h.textContent = text;
+  return h;
+}
+
+// 추가 이미지 목록 읽기
+//  "#제목" = 묶음 제목 / "=" = 여기서 줄 바꿈 / "파일::설명" = 이미지 / "렌더|와이어::설명" = 비교 슬라이더
+function parseExtra(text) {
+  const sections = [{ label: '', entries: [] }];
+  (text || '').split(',').map(s => s.trim()).filter(Boolean).forEach(item => {
+    if (item.startsWith('#')) { sections.push({ label: item.slice(1).trim(), entries: [] }); return; }
+    const cur = sections[sections.length - 1];
+    if (item === '=') { cur.entries.push({ kind: 'break' }); return; }
+    const [body, caption] = item.split('::');
+    const [src, wire] = body.split('|');
+    cur.entries.push(wire ? { kind: 'compare', src, wire, caption } : { kind: 'img', src, caption });
+  });
+  return sections.filter(s => s.entries.length);
+}
+
+// [퍼즐 배열] 사진마다 가로세로 비율을 읽어서, 한 줄에 놓인 사진들의 높이가 똑같아지도록 크기를 맞춤 (자르지 않음)
+//  - 비교 슬라이더는 맨 위, 가로로 아주 긴 사진은 맨 아래에 한 장씩 길게
+//  - 혼자 남는 사진이 없게 줄을 나누고, 줄은 "=" 로 직접 나눌 수도 있음
+function buildPuzzle(entries, title) {
+  const box = document.createElement('div');
+  box.className = 'work-puzzle';
+  const GAP = 16, MAX_H = 620, TARGET = 1.7, WIDE = 2.4;
+
+  const parts = entries.map(en => {
+    if (en.kind === 'break') return { kind: 'break' };
+    const media = en.kind === 'compare' ? makeCompare(en.src, en.wire, title) : makeMedia(en.src, title);
+    const first = en.kind === 'compare' ? media.querySelector('img') : media;
+    return { kind: en.kind, fig: makeFigure(media, en.caption), first, ar: 1.5 };
+  });
+
+  // 이미지가 전부 불러와진 뒤에 비율을 읽어서 배치
+  const loads = parts.filter(p => p.first).map(p => new Promise(done => {
+    if (p.first.tagName === 'VIDEO') { p.ar = 16 / 9; done(); return; }
+    const finish = () => { if (p.first.naturalWidth) p.ar = p.first.naturalWidth / p.first.naturalHeight; done(); };
+    p.first.complete ? finish() : (p.first.addEventListener('load', finish), p.first.addEventListener('error', done));
+  }));
+
+  Promise.all(loads).then(() => {
+    const compares = parts.filter(p => p.kind === 'compare');
+    const tiles = [], wides = [];
+    parts.forEach(p => {
+      if (p.kind === 'break') tiles.push(p);
+      else if (p.kind === 'img') (p.ar > WIDE ? wides : tiles).push(p);
+    });
+
+    const rows = [];
+    compares.forEach(p => rows.push({ items: [p], type: 'compare' }));
+    let row = [], sum = 0;
+    const flush = () => { if (row.length) rows.push({ items: row, type: 'tiles' }); row = []; sum = 0; };
+    tiles.forEach((t, i) => {
+      if (t.kind === 'break') { flush(); return; }
+      row.push(t); sum += t.ar;
+      let left = 0;                                              // 이 줄 뒤에 같은 묶음에 남은 사진 수
+      for (let j = i + 1; j < tiles.length && tiles[j].kind !== 'break'; j += 1) left += 1;
+      if (sum >= TARGET && (left !== 1 || row.length >= 3)) flush();   // 1장만 남으면 이번 줄에 같이 (혼자 남는 사진 방지)
+    });
+    flush();
+    wides.forEach(p => rows.push({ items: [p], type: 'wide' }));
+
+    rows.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'puzzle-row is-' + r.type;
+      r.items.forEach(p => el.append(p.fig));
+      box.append(el);
+    });
+
+    // 화면 너비에 맞춰 사진 크기 계산 (한 줄 안의 사진은 높이가 같음)
+    const layout = () => {
+      if (!box.isConnected) { observer.disconnect(); return; }
+      const W = box.clientWidth;
+      if (!W) return;
+      rows.forEach(r => {
+        if (W < 700 || r.type === 'wide') { r.items.forEach(p => { p.fig.style.width = '100%'; }); return; }
+        if (r.type === 'compare') { r.items[0].fig.style.width = ''; return; }
+        const total = r.items.reduce((s, p) => s + p.ar, 0);
+        const h = Math.min((W - GAP * (r.items.length - 1)) / total, MAX_H);
+        r.items.forEach(p => { p.fig.style.width = Math.floor(p.ar * h) + 'px'; });
+      });
+    };
+    const observer = new ResizeObserver(layout);
+    observer.observe(box);
+    layout();
+  });
+  return box;
+}
+
 document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D 작업 타일 + 프로젝트 카드 둘 다 같은 크게 보기 창 사용
   const { title, render, wire, extra, thumb, video, videoCaptions, pdf, note } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
@@ -321,8 +414,16 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
     // ② 프로젝트 소개 글 (README 내용)
     if (PROJECT_INFO[title]) workMedia.append(makeInfoPanel(PROJECT_INFO[title]));
 
-    // ③ 대표 이미지
-    if (render) {
+    // ③ 대표 이미지 / ④ 추가 이미지 (묶음별 퍼즐 배열)
+    const heroGroup = tile.dataset.heroGroup;           // 대표 이미지가 속한 묶음 이름 (예: Unity)
+    const sections = parseExtra(extra);
+    if (render && tile.dataset.pair) {
+      // 대표 이미지를 퍼즐의 첫 장으로 넣어서 다음 사진과 같은 줄에 나란히 놓음
+      const first = wire ? { kind: 'compare', src: render, wire, caption: note } : { kind: 'img', src: render, caption: note };
+      if (sections.length && !sections[0].label) sections[0].entries.unshift(first);
+      else sections.unshift({ label: '', entries: [first] });
+    } else if (render) {
+      if (heroGroup) workMedia.append(makeGroupTitle(heroGroup));
       const hero = wire ? makeCompare(render, wire, title) : makeMedia(render, title);
       workMedia.append(makeFigure(hero, note, 'work-hero'));
     } else if (!videos.length && !pdf) {
@@ -330,22 +431,10 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
       empty.className = 'work-empty'; empty.textContent = '이미지를 준비 중입니다.';
       workMedia.append(empty);
     }
-
-    // ④ 추가 이미지: 2열 갤러리 (비교 슬라이더는 가로 전체, 이미지를 누르면 크게)
-    const items = (extra || '').split(',').filter(Boolean);
-    if (items.length) {
-      const gallery = document.createElement('div');
-      gallery.className = 'work-gallery';
-      items.forEach(item => {
-        const [body, caption] = item.trim().split('::');   // "파일::설명"으로 적으면 이미지 아래에 설명
-        const [r, w] = body.split('|');                    // "렌더|와이어"로 적으면 비교 슬라이더
-        if (w) { gallery.append(makeFigure(makeCompare(r, w, title), caption, 'wide')); return; }
-        const fig = makeFigure(makeMedia(r, title), caption);
-        fig.addEventListener('click', () => fig.classList.toggle('expanded'));
-        gallery.append(fig);
-      });
-      workMedia.append(gallery);
-    }
+    sections.forEach((sec, i) => {
+      if (sec.label && !(i === 0 && sec.label === heroGroup)) workMedia.append(makeGroupTitle(sec.label));
+      workMedia.append(buildPuzzle(sec.entries, title));
+    });
 
     // ⑤ PDF 자료
     if (pdf) {

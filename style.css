@@ -253,3 +253,11 @@ a.preview-badge{color:#a8bad5}
 .work-pdf-box .work-pdf-link{justify-self:start;margin:0}
 .work-pdf-box .work-pdf{width:100%;height:min(78vh,900px)}
 @media(max-width:760px){.work-info{grid-template-columns:1fr}.work-gallery{columns:1}.work-media{padding:12px;gap:14px}.work-videos .work-video.is-short{height:62vh}}
+
+/* ── 10/7 수정14: 묶음 제목 + 퍼즐 배열 ── */
+.work-group{margin:6px 0 -4px;padding-bottom:8px;border-bottom:1px solid rgba(196,215,248,.14);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#8d9bb5}
+.work-puzzle{display:flex;flex-direction:column;gap:18px}
+.puzzle-row{display:flex;justify-content:center;align-items:flex-start;gap:16px}
+.puzzle-row .work-fig{margin:0;min-width:0;max-width:100%}
+.puzzle-row .work-fig>img{display:block;width:100%;height:auto;max-height:none;border-radius:4px}
+@media(max-width:700px){.puzzle-row{flex-direction:column;align-items:stretch}}
