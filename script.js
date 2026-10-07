@@ -243,9 +243,12 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
     const videos = (video || '').split(',').map(url => url.trim()).filter(Boolean);
     videos.forEach((url, index) => {
       const videoUrl = new URL(url);
+      const pathParts = videoUrl.pathname.split('/').filter(Boolean);
       const videoId = videoUrl.hostname.includes('youtu.be')
-        ? videoUrl.pathname.slice(1)
-        : videoUrl.searchParams.get('v');
+        ? pathParts[0]
+        : (pathParts[0] === 'shorts' || pathParts[0] === 'embed'
+          ? pathParts[1]
+          : videoUrl.searchParams.get('v'));
       const frame = document.createElement('iframe');
       frame.className = 'work-video';
       frame.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
