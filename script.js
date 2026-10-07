@@ -296,15 +296,15 @@ if (wireStage && wireHero && wireCanTilt) {
   for (let i = 0; i < W * H; i += 4) if (grid[i]) starts.push(i);
 
   const DIRS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];   // 8방향
-  const SPARK_COUNT = 55;
+  const SPARK_COUNT = 14;                  // 적게, 은은하게
   const sparks = [];
   const respawn = s => {
     const i = starts[(Math.random() * starts.length) | 0];
     s.x = i % W; s.y = (i / W) | 0;
     s.dir = (Math.random() * 8) | 0;
-    s.speed = 1 + Math.random() * 1.6;     // 한 프레임에 움직이는 칸 수
-    s.life = 50 + Math.random() * 110;     // 몇 프레임 동안 타는지
-    s.age = 0; s.carry = 0;
+    s.speed = 0.08 + Math.random() * 0.12;  // 한 프레임에 움직이는 칸 수 (아주 느리게)
+    s.life = 420 + Math.random() * 480;     // 몇 프레임 동안 빛나는지 (약 7~15초)
+    s.age = 0; s.carry = 0; s.phase = Math.random() * Math.PI * 2; s.trail = [];
     return s;
   };
   for (let i = 0; i < SPARK_COUNT; i += 1) sparks.push(respawn({}));
@@ -318,12 +318,23 @@ if (wireStage && wireHero && wireCanTilt) {
     return true;
   };
 
-  let scale = 1;
+  let scale = 1, ratioPx = 1;
+  // 중심에서 바깥으로 갈수록 가늘고 투명해지는 빛줄기 하나
+  const drawRay = (x, y, len, ang, alpha) => {
+    const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len;
+    const g = ctx.createLinearGradient(x, y, ex, ey);
+    g.addColorStop(0, `rgba(255,255,255,${alpha})`);
+    g.addColorStop(0.4, `rgba(185,230,255,${alpha * 0.5})`);
+    g.addColorStop(1, 'rgba(150,210,255,0)');
+    ctx.strokeStyle = g; ctx.lineWidth = 0.7 * ratioPx;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+  };
   const resize = () => {
     const ratio = Math.min(devicePixelRatio || 1, 2);
     const box = cvs.getBoundingClientRect();
     cvs.width = Math.round(box.width * ratio); cvs.height = Math.round(box.height * ratio);
     scale = cvs.width / W;                 // 지도 1칸 = 캔버스 몇 픽셀
+    ratioPx = ratio;
   };
   resize();
   addEventListener('resize', resize);
@@ -335,9 +346,7 @@ if (wireStage && wireHero && wireCanTilt) {
     requestAnimationFrame(frame);
     if (!visible) return;
     // 이전 그림을 조금씩 지워서 꼬리가 남았다 사라지게
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = 'rgba(0,0,0,0.16)';
-    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
     ctx.globalCompositeOperation = 'lighter';
     for (const s of sparks) {
       const px = s.x, py = s.y;
@@ -346,18 +355,23 @@ if (wireStage && wireHero && wireCanTilt) {
       while (s.carry >= 1 && alive) { alive = advance(s); s.carry -= 1; }
       s.age += 1;
       const fade = Math.sin(Math.min(s.age / s.life, 1) * Math.PI);   // 서서히 밝아졌다 꺼짐
-      // 꼬리 선
-      ctx.strokeStyle = `rgba(150,215,255,${0.55 * fade})`;
-      ctx.lineWidth = 1.2 * scale;
-      ctx.beginPath(); ctx.moveTo((px + 0.5) * scale, (py + 0.5) * scale); ctx.lineTo((s.x + 0.5) * scale, (s.y + 0.5) * scale); ctx.stroke();
-      // 불꽃 머리 (반짝임)
-      const r = (1.6 + Math.random() * 1.4) * scale;
-      const g = ctx.createRadialGradient((s.x + 0.5) * scale, (s.y + 0.5) * scale, 0, (s.x + 0.5) * scale, (s.y + 0.5) * scale, r * 2.4);
-      g.addColorStop(0, `rgba(255,255,255,${0.95 * fade})`);
-      g.addColorStop(0.35, `rgba(160,225,255,${0.6 * fade})`);
-      g.addColorStop(1, 'rgba(90,170,255,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc((s.x + 0.5) * scale, (s.y + 0.5) * scale, r * 2.4, 0, Math.PI * 2); ctx.fill();
+      const cx = (s.x + 0.5) * scale, cy = (s.y + 0.5) * scale;
+      // 꼬리: 지나온 자리를 이어서 아주 얇고 희미하게 (뒤로 갈수록 투명)
+      if (px !== s.x || py !== s.y) { s.trail.push([cx, cy]); if (s.trail.length > 18) s.trail.shift(); }
+      ctx.lineWidth = 0.5 * ratioPx;
+      for (let t = 1; t < s.trail.length; t += 1) {
+        ctx.strokeStyle = `rgba(190,230,255,${0.3 * fade * (t / s.trail.length)})`;
+        ctx.beginPath(); ctx.moveTo(s.trail[t - 1][0], s.trail[t - 1][1]); ctx.lineTo(s.trail[t][0], s.trail[t][1]); ctx.stroke();
+      }
+      // 머리: 뾰족한 다이아몬드 반짝임 (가늘어지는 십자 + 짧은 대각선)
+      const twinkle = 0.65 + 0.35 * Math.sin(s.age * 0.05 + s.phase);  // 천천히 반짝반짝
+      const a = fade * twinkle;
+      const long = (5 + 2 * twinkle) * ratioPx, short = long * 0.45;
+      drawRay(cx, cy, long, 0, a); drawRay(cx, cy, long, Math.PI / 2, a);
+      drawRay(cx, cy, long, Math.PI, a); drawRay(cx, cy, long, -Math.PI / 2, a);
+      [1, 3, 5, 7].forEach(k => drawRay(cx, cy, short, k * Math.PI / 4, a * 0.5));
+      ctx.fillStyle = `rgba(255,255,255,${a})`;                       // 아주 작은 중심점
+      ctx.beginPath(); ctx.arc(cx, cy, 0.7 * ratioPx, 0, Math.PI * 2); ctx.fill();
       if (!alive || s.age > s.life) respawn(s);
     }
   };
