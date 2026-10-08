@@ -262,11 +262,12 @@ a.preview-badge{color:#a8bad5}
 .puzzle-row .work-fig>img{display:block;width:100%;height:auto;max-height:none;border-radius:4px}
 @media(max-width:700px){.puzzle-row{flex-direction:column;align-items:stretch}}
 
-/* ── 10/8 수정15: Commit Log 칸을 크게 — 카드 폭에 맞춰 53주가 꽉 차도록 (칸은 항상 정사각형) ── */
-.contribution-grid{grid-template-rows:repeat(7,auto);grid-auto-columns:1fr;gap:4px;justify-content:stretch;min-width:640px}
-.contribution-grid .day{width:100%;height:auto;aspect-ratio:1;border-radius:3px}
-.calendar-body{align-items:stretch}
-.weekday-axis{height:auto;grid-template-rows:repeat(7,1fr);gap:4px;font-size:9px}
+/* ── 10/8 수정15: Commit Log — 칸은 15px로 적당히 키우고, 칸 사이 간격으로 카드 폭을 채움 ── */
+.contribution-grid{grid-template-rows:repeat(7,15px);grid-auto-columns:15px;gap:5px 4px;justify-content:space-between;min-width:0}
+.contribution-grid .day{width:15px;height:15px;border-radius:3px}
+.calendar-scroll{overflow-x:auto;margin-right:0}
+.weekday-axis{height:auto;grid-template-rows:repeat(7,15px);gap:5px;font-size:9px}
 .weekday-axis span:nth-child(1){grid-row:2}.weekday-axis span:nth-child(2){grid-row:4}.weekday-axis span:nth-child(3){grid-row:6}
-.month-axis{min-width:640px;font-size:10px;margin-bottom:9px}
+.month-axis{min-width:0;font-size:10px;margin-bottom:9px}
 .contribution-top>div span{font-size:11px}
+@media(max-width:760px){.contribution-grid{grid-template-rows:repeat(7,10px);grid-auto-columns:10px;gap:3px;min-width:690px}.contribution-grid .day{width:10px;height:10px}.weekday-axis{grid-template-rows:repeat(7,10px);gap:3px}.month-axis{min-width:690px}}
