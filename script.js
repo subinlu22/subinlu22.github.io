@@ -254,17 +254,21 @@ const PROJECT_INFO = {
     features: ['사진·영상 슬라이드쇼 + 음성 안내, 복약 알림', '표정 분석(DeepFace)으로 기억 인지 반응 확인', '가족이 사진·설정을 관리하는 웹 설정 페이지', '오답·반복 상황에서도 빨간색·X·경고음 없이 공감 먼저 반응'],
     solved: [['Hailo 모듈이 인식되지 않음', 'M.2 HAT+는 PCIe 수동 활성화 필요 → config.txt에 dtparam=pciex1'], ['학교 네트워크에서 SSH/SCP 불가', '모니터 직결로 작업하고 데이터는 클라우드를 거쳐 이전'], ['라즈베리파이에서 실시간 프레임 저하', '개선 전/후 동작은 위 영상에서 확인']],
   },
+  'Sticky Note': {
+    summary: '바탕화면에 포스트잇처럼 여러 장을 띄워 쓰는 Electron 데스크톱 메모 앱입니다. 학교와 집 컴퓨터에서 같은 메모를 이어 보려고 만들었고, 지금도 직접 쓰면서 기능을 추가하고 있습니다.',
+    features: ['메모창을 닫는 순간 노션 데이터베이스에 체크박스·글머리·서식까지 저장', '구글 캘린더 연동: 달력에 일정 표시, 옆으로 펼쳐지는 큰 달력', '메모와 일정에 대해 물어보는 채팅 (Gemini API 또는 로컬 검색)', '색상 프리셋·커스텀 팔레트, 글라스 테마 (베타)'],
+  },
 };
 
 // 소개 글 패널 만들기
 function makeInfoPanel(info) {
   const box = document.createElement('section');
   box.className = 'work-info';
-  const solved = info.solved.map(([problem, fix]) => `<li><b>${problem}</b><span>${fix}</span></li>`).join('');
+  const solved = (info.solved || []).map(([problem, fix]) => `<li><b>${problem}</b><span>${fix}</span></li>`).join('');
   box.innerHTML = `
     <div class="info-main"><h4>Overview</h4><p>${info.summary}</p>
-      <h4>Key Features</h4><ul>${info.features.map(f => `<li>${f}</li>`).join('')}</ul></div>
-    <div class="info-solved"><h4>Problem Solving</h4><ul>${solved}</ul></div>`;
+      <h4>Key Features</h4><ul>${info.features.map(f => `<li>${f}</li>`).join('')}</ul></div>${info.solved ? `
+    <div class="info-solved"><h4>Problem Solving</h4><ul>${solved}</ul></div>` : ''}`;
   return box;
 }
 
