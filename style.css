@@ -280,3 +280,6 @@ a.preview-badge{color:#a8bad5}
 .project-copy>p.project-credit{position:absolute;left:28px;right:27px;bottom:14px;max-width:none;margin:0;font-size:11px;line-height:1.6;color:#67738a}
 .project-credit a{color:#8493ac;text-decoration:underline;text-underline-offset:2px}
 @media(max-width:760px){.project-copy>p.project-credit{left:20px;right:20px;bottom:12px}.project-copy:has(.project-credit) .project-more,.project-copy:has(.project-credit)>a{bottom:76px}.project-open .project-copy:has(.project-credit){padding-bottom:118px}}
+
+/* ── 10/14: Hand Block 상세보기 — 직접 올린 데모 영상 (원본 비율 유지) ── */
+.work-videos .work-video.is-file{aspect-ratio:auto;height:auto}

@@ -393,7 +393,7 @@ function buildPuzzle(entries, title) {
 }
 
 document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D 작업 타일 + 프로젝트 카드 둘 다 같은 크게 보기 창 사용
-  const { title, render, wire, extra, thumb, video, videoCaptions, pdf, note } = tile.dataset;
+  const { title, render, wire, extra, thumb, video, videoCaptions, videoPoster, pdf, note } = tile.dataset;
   // 썸네일이 있으면 기본 큐브 아이콘 대신 표시
   if (thumb && tile.classList.contains('work-tile')) tile.querySelector('.work-thumb svg')?.replaceWith(makeImage(thumb, title));
 
@@ -407,6 +407,15 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
       const row = document.createElement('div');
       row.className = 'work-videos';
       videos.forEach((url, index) => {
+        // 직접 올린 영상 파일(mp4)은 video 태그로, 원본 비율 그대로
+        if (/\.(mp4|webm)$/i.test(url)) {
+          const clip = document.createElement('video');
+          clip.className = 'work-video is-file';
+          clip.src = url; clip.controls = true; clip.muted = true; clip.playsInline = true; clip.preload = 'metadata';
+          if (videoPoster) clip.poster = videoPoster;
+          row.append(makeFigure(clip, (videoCaptions || '').split(',')[index]?.trim(), 'is-wide'));
+          return;
+        }
         const { id, short } = parseYouTube(url);
         const frame = document.createElement('iframe');
         frame.className = 'work-video' + (short ? ' is-short' : '');
