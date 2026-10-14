@@ -274,7 +274,6 @@ a.preview-badge{color:#a8bad5}
 @media(max-width:760px){.contribution-grid{grid-template-rows:repeat(7,10px);grid-auto-columns:10px;gap:3px;min-width:690px}.contribution-grid .day{width:10px;height:10px}.weekday-axis{grid-template-rows:repeat(7,10px);gap:3px}.month-axis{min-width:690px}}
 
 /* ── 10/14: Hand Block 카드 — 역할 표시 / 출처 표기 ── */
-.project-thumb .project-img.is-contain{object-fit:contain}
 .project-copy>p.project-role{margin:12px 0 0;font-size:12px;line-height:1.6;color:#8493ac}
 .project-open .project-copy:has(.project-credit){padding-bottom:104px}
 .project-copy:has(.project-credit) .project-more,.project-copy:has(.project-credit)>a{bottom:62px}
