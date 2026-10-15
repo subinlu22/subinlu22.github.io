@@ -225,6 +225,7 @@ a.preview-badge{color:#a8bad5}
 .work-videos{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:flex-start}
 .work-videos .work-fig.is-wide{flex:1 1 440px;min-width:0}
 .work-videos .work-fig.is-short{flex:0 0 auto}
+.work-videos .work-fig.is-full{flex-basis:100%}
 .work-videos .work-video{width:100%;aspect-ratio:16/9;border:0;background:#000;display:block}
 .work-videos .work-video.is-short{width:auto;height:min(68vh,600px);aspect-ratio:9/16}
 /* 소개 글 */

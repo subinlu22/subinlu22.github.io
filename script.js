@@ -413,7 +413,8 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
           clip.className = 'work-video is-file';
           clip.src = url; clip.controls = true; clip.muted = true; clip.playsInline = true; clip.preload = 'metadata';
           if (videoPoster) clip.poster = videoPoster;
-          row.append(makeFigure(clip, (videoCaptions || '').split(',')[index]?.trim(), 'is-wide'));
+          // 다른 영상과 같이 있으면 완성 데모처럼 맨 위 한 줄을 통째로 차지
+          row.append(makeFigure(clip, (videoCaptions || '').split(',')[index]?.trim(), videos.length > 1 ? 'is-wide is-full' : 'is-wide'));
           return;
         }
         const { id, short } = parseYouTube(url);
