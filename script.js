@@ -205,7 +205,8 @@ function makeMedia(src, alt) {
 }
 
 // [비교 슬라이더] 렌더 위에 와이어를 겹치고, 막대 위치만큼 와이어를 잘라서 보여줌
-function makeCompare(renderSrc, wireSrc, title) {
+// sideLabels: 양쪽 라벨 (기본 Render/Wireframe, 예: "Before/After")
+function makeCompare(renderSrc, wireSrc, title, sideLabels = 'Render/Wireframe') {
   const box = document.createElement('div');
   box.className = 'compare';
   const base = makeImage(renderSrc, title + ' 렌더링');
@@ -216,10 +217,11 @@ function makeCompare(renderSrc, wireSrc, title) {
   const range = document.createElement('input');   // 손가락/마우스로 끄는 투명한 막대
   range.type = 'range'; range.min = 0; range.max = 100; range.value = 50;
   range.className = 'compare-range';
-  range.setAttribute('aria-label', '렌더링과 와이어프레임 비교');
+  const [leftLabel, rightLabel] = (sideLabels || 'Render/Wireframe').split('/');
+  range.setAttribute('aria-label', `${leftLabel}와 ${rightLabel} 비교`);
   const labels = document.createElement('div');
   labels.className = 'compare-labels';
-  labels.innerHTML = '<span>Render</span><span>Wireframe</span>';
+  labels.innerHTML = `<span>${leftLabel}</span><span>${rightLabel}</span>`;
   // 막대 값(0~100)에 맞춰 와이어 이미지의 왼쪽을 잘라냄 → 왼쪽은 렌더, 오른쪽은 와이어
   const update = () => {
     top.style.clipPath = `inset(0 0 0 ${range.value}%)`;
@@ -248,6 +250,11 @@ const PROJECT_INFO = {
     summary: '실물 로봇팔과 실시간으로 똑같이 움직이는 학습용 디지털 트윈 시뮬레이터입니다. 리더암 → 파이썬 브리지 → 팔로워암 · 유니티 순서로, 실물과 Unity 로봇팔을 같은 각도 값으로 잇습니다. 개인 프로젝트로 2026년 10월부터 진행 중입니다.',
     features: ['실물 리더암 6관절·그리퍼 각도를 Unity 로봇팔이 30Hz UDP로 실시간 미러링 (40초 동안 1,200개 수신, 손실 0)', '컨베이어 옆 로봇 위치와 관절 범위를 실물에 맞춰 실측 보정', '연결·해제·제어를 한 곳에서 하는 컨트롤 패널 직접 제작'],
     solved: [['수신 간격이 들쭉날쭉해 Unity 팔이 끊겨 보임 (끊김 40%)', '받은 각도 사이를 보간해 부드럽게 따라가도록 → 끊김 0.2%'], ['Unity 팔의 위치·관절 범위가 실물과 달라 같은 각도에서도 자세가 어긋남', '컨베이어 옆 로봇 위치와 관절별 범위를 실측해 보정']],
+  },
+  'Unity Look Preset Tool': {
+    summary: '웹 커피머신 학습 시뮬레이터(three.js)는 동작은 실제 장비와 같지만 화면은 실제 매장과 거리가 멀었습니다. 모델과 시뮬레이션은 그대로 두고 조명·재질·색감·더티만 갈아끼우는 Unity 에디터 툴을 만들었습니다. 레퍼런스 사진 한 장으로 프리셋을 반자동 생성하고, 만든 룩을 동작 중인 웹 시뮬레이터에 실시간으로 적용합니다.',
+    features: ['Look Preset: 조명·HDRI·재질·포스트·배경 소품을 파일 하나로, 끄면 원본 100% 복원 (원본 재질·씬 무수정)', 'Reference Matcher: 사진에 영역 지정 → 색 추출 → 재질 생성 → 톤 자동 보정 (오차 0.80 → 0.03)', '레트로 디테일 절차 생성: 얼룩·흘러내림·페인트 벗겨짐, 스티커·포스터, 접지 그림자', 'Unity → three.js 룩 파이프라인 + Live Link: 값을 고치면 1~2초 안에 시뮬레이터에 반영', 'Look Rules: 반사율 범위·재질 표준값·톤 보정 범위로 프리셋끼리 일관된 실사 기준'],
+    solved: [['서로 다른 엔진(Unity / three.js)에서 같은 재질 찾기', 'glb의 노드→메시→재질 번호로 양쪽을 연결, 34개 색 비교로 검증'], ['플레이 화면만 그림자가 컴컴함', '장면 크기(0.8m)에 비해 과한 AO를 찾아 세기·두께 조정'], ['사진 속 색에 조명이 섞여 하얗게 뜸', '알베도를 실제 반사율 범위로 제한 + 톤 보정 범위 제한'], ['웹이 Unity보다 훨씬 밝게 나옴', '같은 앵글에서 영역별 밝기를 측정해 보정값 산출, 룩별 미세 보정']],
   },
   'Dopamine': {
     summary: '일기·사진·음성·영상을 입력하면 AI가 가사, 음악, 앨범 커버를 만들어주는 감정 기록 서비스입니다. 생성형 AI ICT 공모전 출품작이고, 2인 팀에서 AI 파이프라인과 백엔드를 맡았습니다.',
@@ -318,6 +325,7 @@ function makeGroupTitle(text) {
 
 // 추가 이미지 목록 읽기
 //  "#제목" = 묶음 제목 / "=" = 여기서 줄 바꿈 / "파일::설명" = 이미지 / "렌더|와이어::설명" = 비교 슬라이더
+//  "앞|뒤|Before/After::설명" = 라벨을 바꾼 비교 슬라이더
 function parseExtra(text) {
   const sections = [{ label: '', entries: [] }];
   (text || '').split(',').map(s => s.trim()).filter(Boolean).forEach(item => {
@@ -325,8 +333,8 @@ function parseExtra(text) {
     const cur = sections[sections.length - 1];
     if (item === '=') { cur.entries.push({ kind: 'break' }); return; }
     const [body, caption] = item.split('::');
-    const [src, wire] = body.split('|');
-    cur.entries.push(wire ? { kind: 'compare', src, wire, caption } : { kind: 'img', src, caption });
+    const [src, wire, labels] = body.split('|');
+    cur.entries.push(wire ? { kind: 'compare', src, wire, labels, caption } : { kind: 'img', src, caption });
   });
   return sections.filter(s => s.entries.length);
 }
@@ -341,7 +349,7 @@ function buildPuzzle(entries, title) {
 
   const parts = entries.map(en => {
     if (en.kind === 'break') return { kind: 'break' };
-    const media = en.kind === 'compare' ? makeCompare(en.src, en.wire, title) : makeMedia(en.src, title);
+    const media = en.kind === 'compare' ? makeCompare(en.src, en.wire, title, en.labels) : makeMedia(en.src, title);
     const first = en.kind === 'compare' ? media.querySelector('img') : media;
     return { kind: en.kind, fig: makeFigure(media, en.caption), first, ar: 1.5 };
   });
@@ -454,7 +462,7 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
       if (heroGroup) workMedia.append(makeGroupTitle(heroGroup));
       const hero = wire ? makeCompare(render, wire, title) : makeMedia(render, title);
       workMedia.append(makeFigure(hero, note, 'work-hero'));
-    } else if (!videos.length && !pdf) {
+    } else if (!videos.length && !pdf && !sections.length) {   // 추가 이미지도 없을 때만 "준비 중"
       const empty = document.createElement('p');
       empty.className = 'work-empty'; empty.textContent = '이미지를 준비 중입니다.';
       workMedia.append(empty);
