@@ -435,7 +435,9 @@ document.querySelectorAll('.work-tile, .project-open').forEach(tile => {   // 3D
           const clip = document.createElement('video');
           clip.className = 'work-video is-file';
           clip.src = url; clip.controls = true; clip.muted = true; clip.playsInline = true; clip.preload = 'metadata';
-          if (videoPoster) clip.poster = videoPoster;
+          // 포스터도 쉼표로 영상마다 (하나만 있으면 첫 영상에만)
+          const poster = (videoPoster || '').split(',')[index]?.trim();
+          if (poster) clip.poster = poster;
           // 다른 영상과 같이 있으면 완성 데모처럼 맨 위 한 줄을 통째로 차지
           row.append(makeFigure(clip, (videoCaptions || '').split(',')[index]?.trim(), videos.length > 1 ? 'is-wide is-full' : 'is-wide'));
           return;
